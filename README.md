@@ -142,7 +142,6 @@ curl -X POST "http://localhost:5000/transactions" \
   -d '{
     "transaction": {
       "accountId": "{accountId_1}",
-      "counterPartyAccountId": "{accountId_2}",
       "amount": 500.0,
       "currency": "RUB",
       "type": 0,
