@@ -22,23 +22,54 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
 
     public async Task<Guid> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
     {
-        var account = await _accountRepository.GetByIdAsync(request.Transaction.AccountId)
-                      ?? throw new AccountNotFoundException(request.Transaction.AccountId);
+        var transactionDto = request.Transaction;
 
-        if (request.Transaction.Type == TransactionType.Debit && account.Balance < request.Transaction.Amount)
-            throw new InsufficientFundsException(account.Id, account.Balance, request.Transaction.Amount);
+        var account = await _accountRepository.GetByIdAsync(transactionDto.AccountId)
+                      ?? throw new AccountNotFoundException(transactionDto.AccountId);
 
-        account.Balance += request.Transaction.Type == TransactionType.Credit
-            ? request.Transaction.Amount
-            : -request.Transaction.Amount;
+        if (transactionDto.Type == TransactionType.Debit && account.Balance < transactionDto.Amount)
+            throw new InsufficientFundsException(account.Id, account.Balance, transactionDto.Amount);
+
+        account.Balance += transactionDto.Type == TransactionType.Credit
+            ? transactionDto.Amount
+            : -transactionDto.Amount;
 
         await _accountRepository.UpdateAsync(account);
 
-        var transaction = _mapper.Map<Transaction>(request.Transaction);
+        var transaction = _mapper.Map<Transaction>(transactionDto);
         transaction.Id = Guid.CreateVersion7();
-        transaction.Date = DateTime.Now;
+        transaction.Date = DateTime.UtcNow;
 
         await _transactionRepository.AddAsync(transaction);
+
+        if (transactionDto.CounterPartyAccountId is null)
+            return transaction.Id;
+
+        var counterPartyAccount = await _accountRepository.GetByIdAsync(transactionDto.CounterPartyAccountId.Value)
+                                  ?? throw new AccountNotFoundException(transactionDto.CounterPartyAccountId.Value);
+
+        if (counterPartyAccount.Currency != transactionDto.Currency)
+            throw new CurrencyMismatchException();
+
+        counterPartyAccount.Balance += transactionDto.Type == TransactionType.Credit
+            ? -transactionDto.Amount
+            : transactionDto.Amount;
+
+        await _accountRepository.UpdateAsync(counterPartyAccount);
+
+        var mirroredTransaction = new Transaction
+        {
+            Id = Guid.CreateVersion7(),
+            AccountId = counterPartyAccount.Id,
+            CounterPartyAccountId = account.Id,
+            Amount = transactionDto.Amount,
+            Currency = transactionDto.Currency,
+            Type = transactionDto.Type == TransactionType.Credit ? TransactionType.Debit : TransactionType.Credit,
+            Description = transactionDto.Description,
+            Date = DateTime.UtcNow
+        };
+
+        await _transactionRepository.AddAsync(mirroredTransaction);
 
         return transaction.Id;
     }
