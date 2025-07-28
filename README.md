@@ -36,7 +36,7 @@ git clone https://github.com/holo2k/AccountService.git
 cd AccountService
 ````
 Swagger будет доступен по адресу:
-[http://localhost:5000/swagger](http://localhost:5000/swagger)
+[http://localhost:5000/index.html](http://localhost:5000/index.html)
 
 ---
 
