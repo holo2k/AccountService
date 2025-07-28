@@ -1,8 +1,10 @@
-﻿namespace AccountService.Features.Transaction
+﻿namespace AccountService.Features.Transaction;
+
+public enum TransactionType
 {
-    public enum TransactionType
-    {
-        Credit,
-        Debit
-    }
+    /// <summary>Зачисление</summary>
+    Credit = 0,
+
+    /// <summary>Списание</summary>
+    Debit = 1
 }

@@ -1,9 +1,13 @@
-﻿namespace AccountService.Features.Account
+﻿namespace AccountService.Features.Account;
+
+public enum AccountType
 {
-    public enum AccountType
-    {
-        Checking,
-        Deposit,
-        Credit
-    }
+    /// <summary>Текущий счёт</summary>
+    Checking = 0,
+
+    /// <summary>Депозитный счёт</summary>
+    Deposit = 1,
+
+    /// <summary>Кредитный счёт</summary>
+    Credit = 2
 }
