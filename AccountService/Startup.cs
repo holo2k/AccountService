@@ -40,6 +40,7 @@ public static class Startup
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddEndpointsApiExplorer();
+
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -53,10 +54,22 @@ public static class Startup
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
         });
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
     }
 
     public static void Configure(WebApplication app)
     {
+        app.UseCors("AllowAll");
+
         app.AddSwagger();
 
         app.AddExceptionHandler();
