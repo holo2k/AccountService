@@ -1,6 +1,7 @@
 ﻿using AccountService.Features.Account.AddAccount;
 using AccountService.Features.Account.DeleteAccount;
 using AccountService.Features.Account.GetAccount;
+using AccountService.Features.Account.GetAccountBalance;
 using AccountService.Features.Account.GetAccountsByOwnerId;
 using AccountService.Features.Account.GetAccountStatement;
 using AccountService.Features.Account.UpdateAccount;
@@ -117,6 +118,22 @@ public class AccountsController : ControllerBase
             return NotFound("Счёт не найден у данного владельца.");
 
         return Ok(true);
+    }
+
+    /// <summary>
+    ///     Получить баланс текущего счёта владельца.
+    /// </summary>
+    /// <param name="ownerId">ID владельца счета.</param>
+    /// <returns>Статус 200 OK, если счёт принадлежит владельцу; 404 Not Found — если нет.</returns>
+    /// <response code="200">Баланс успешно получен.</response>
+    /// <response code="400">Некорректные параметры запроса.</response>
+    /// <response code="404">Счёт или владелец не найдены.</response>
+    [HttpGet("{ownerId}/balance")]
+    public async Task<IActionResult> GetBalance(Guid ownerId)
+    {
+        var balance = await _mediator.Send(new GetAccountBalanceQuery(ownerId));
+
+        return Ok(balance);
     }
 
     /// <summary>

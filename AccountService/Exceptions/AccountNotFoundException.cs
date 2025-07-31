@@ -6,4 +6,8 @@ public class AccountNotFoundException : Exception
         : base($"Счёт с ID {accountId} не найден")
     {
     }
+
+    public AccountNotFoundException(string? message = "Счёт не найден") : base(message)
+    {
+    }
 }
