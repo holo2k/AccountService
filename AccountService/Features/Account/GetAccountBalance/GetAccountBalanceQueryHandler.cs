@@ -1,5 +1,4 @@
-﻿using AccountService.Exceptions;
-using AccountService.Infrastructure.Repository.Abstractions;
+﻿using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using MediatR;
 
@@ -22,7 +21,11 @@ public class GetAccountBalanceQueryHandler : IRequestHandler<GetAccountBalanceQu
         var checkingAccount = accounts.FirstOrDefault(a => a.Type == AccountType.Checking);
 
         if (checkingAccount is null)
-            throw new AccountNotFoundException("У пользователя нет текущего счёта.");
+            return MbResult<decimal>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = "У пользователя нет текущего счёта."
+            });
 
         return MbResult<decimal>.Success(checkingAccount.Balance);
     }

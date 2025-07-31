@@ -1,5 +1,4 @@
-﻿using AccountService.Exceptions;
-using AccountService.Infrastructure.Repository.Abstractions;
+﻿using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
@@ -13,8 +12,10 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
     private readonly IMapper _mapper;
     private readonly ITransactionRepository _transactionRepository;
 
-    public AddTransactionCommandHandler(ITransactionRepository transactionRepository,
-        IAccountRepository accountRepository, IMapper mapper)
+    public AddTransactionCommandHandler(
+        ITransactionRepository transactionRepository,
+        IAccountRepository accountRepository,
+        IMapper mapper)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
@@ -23,55 +24,110 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
 
     public async Task<MbResult<Guid>> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
     {
-        var transactionDto = request.Transaction;
+        var dto = request.Transaction;
 
-        var account = await _accountRepository.GetByIdAsync(transactionDto.AccountId)
-                      ?? throw new AccountNotFoundException(transactionDto.AccountId);
+        var accountResult = await LoadAndValidateMainAccount(dto);
+        if (!accountResult.IsSuccess) return MbResult<Guid>.Fail(accountResult.Error!);
 
-        if (transactionDto.Type == TransactionType.Debit && account.Balance < transactionDto.Amount)
-            throw new InsufficientFundsException(account.Id, account.Balance, transactionDto.Amount);
+        var account = accountResult.Result!;
 
-        account.Balance += transactionDto.Type == TransactionType.Credit
-            ? transactionDto.Amount
-            : -transactionDto.Amount;
+        var balanceResult = UpdateAccountBalance(account, dto);
+        if (!balanceResult.IsSuccess) return MbResult<Guid>.Fail(balanceResult.Error!);
 
-        await _accountRepository.UpdateAsync(account);
+        var updateResult = await _accountRepository.UpdateAsync(account);
+        if (!updateResult.IsSuccess) return MbResult<Guid>.Fail(updateResult.Error!);
 
-        var transaction = _mapper.Map<Transaction>(transactionDto);
-        transaction.Id = Guid.CreateVersion7();
-        transaction.Date = DateTime.UtcNow;
-
+        var transaction = CreateTransaction(dto);
         await _transactionRepository.AddAsync(transaction);
 
-        if (transactionDto.CounterPartyAccountId is null)
+        if (dto.CounterPartyAccountId is null)
             return MbResult<Guid>.Success(transaction.Id);
 
-        var counterPartyAccount = await _accountRepository.GetByIdAsync(transactionDto.CounterPartyAccountId.Value)
-                                  ?? throw new AccountNotFoundException(transactionDto.CounterPartyAccountId.Value);
+        var counterPartyResult = await HandleCounterParty(dto, account);
 
-        if (counterPartyAccount.Currency != transactionDto.Currency)
-            throw new CurrencyMismatchException();
+        return !counterPartyResult.IsSuccess
+            ? MbResult<Guid>.Fail(counterPartyResult.Error!)
+            : MbResult<Guid>.Success(transaction.Id);
+    }
 
-        counterPartyAccount.Balance += transactionDto.Type == TransactionType.Credit
-            ? -transactionDto.Amount
-            : transactionDto.Amount;
+    private async Task<MbResult<Account.Account>> LoadAndValidateMainAccount(TransactionDto dto)
+    {
+        var account = await _accountRepository.GetByIdAsync(dto.AccountId);
 
-        await _accountRepository.UpdateAsync(counterPartyAccount);
+        if (account is null)
+            return MbResult<Account.Account>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт с ID {dto.AccountId} не найден"
+            });
+
+        return MbResult<Account.Account>.Success(account);
+    }
+
+    private static MbResult<Unit> UpdateAccountBalance(Account.Account account, TransactionDto dto)
+    {
+        if (dto.Type == TransactionType.Debit && account.Balance < dto.Amount)
+            return MbResult<Unit>.Fail(new MbError
+            {
+                Code = "InsufficientFunds",
+                Message = $"Недостаточно средств: баланс {account.Balance}, требуется {dto.Amount}"
+            });
+
+        account.Balance += dto.Type == TransactionType.Credit
+            ? dto.Amount
+            : -dto.Amount;
+
+        return MbResult<Unit>.Success(Unit.Value);
+    }
+
+    private Transaction CreateTransaction(TransactionDto dto)
+    {
+        var transaction = _mapper.Map<Transaction>(dto);
+        transaction.Id = Guid.CreateVersion7();
+        transaction.Date = DateTime.UtcNow;
+        return transaction;
+    }
+
+    private async Task<MbResult<Guid>> HandleCounterParty(TransactionDto dto, Account.Account account)
+    {
+        var counterParty = await _accountRepository.GetByIdAsync(dto.CounterPartyAccountId!.Value);
+        if (counterParty is null)
+            return MbResult<Guid>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт контрагента с ID {dto.CounterPartyAccountId} не найден"
+            });
+
+        if (counterParty.Currency != dto.Currency)
+            return MbResult<Guid>.Fail(new MbError
+            {
+                Code = "CurrencyMismatch",
+                Message = $"Валюта счёта {counterParty.Currency} не совпадает с валютой транзакции {dto.Currency}"
+            });
+
+        counterParty.Balance += dto.Type == TransactionType.Credit
+            ? -dto.Amount
+            : dto.Amount;
+
+        var updateResult = await _accountRepository.UpdateAsync(counterParty);
+        if (!updateResult.IsSuccess)
+            return MbResult<Guid>.Fail(updateResult.Error!);
 
         var mirroredTransaction = new Transaction
         {
             Id = Guid.CreateVersion7(),
-            AccountId = counterPartyAccount.Id,
+            AccountId = counterParty.Id,
             CounterPartyAccountId = account.Id,
-            Amount = transactionDto.Amount,
-            Currency = transactionDto.Currency,
-            Type = transactionDto.Type == TransactionType.Credit ? TransactionType.Debit : TransactionType.Credit,
-            Description = transactionDto.Description,
+            Amount = dto.Amount,
+            Currency = dto.Currency,
+            Type = dto.Type == TransactionType.Credit
+                ? TransactionType.Debit
+                : TransactionType.Credit,
+            Description = dto.Description,
             Date = DateTime.UtcNow
         };
 
         await _transactionRepository.AddAsync(mirroredTransaction);
-
-        return MbResult<Guid>.Success(transaction.Id);
+        return MbResult<Guid>.Success(mirroredTransaction.Id);
     }
 }

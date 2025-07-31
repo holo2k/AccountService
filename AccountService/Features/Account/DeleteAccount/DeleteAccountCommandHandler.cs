@@ -16,8 +16,8 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
 
     public async Task<MbResult<Guid>> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAsync(request.AccountId);
+        var result = await _repository.DeleteAsync(request.AccountId);
 
-        return MbResult<Guid>.Success(request.AccountId);
+        return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(request.AccountId);
     }
 }

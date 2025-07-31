@@ -20,8 +20,9 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
     public async Task<MbResult<Guid>> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
     {
         var account = _mapper.Map<Account>(request.Account);
-        await _repository.UpdateAsync(account);
 
-        return MbResult<Guid>.Success(account.Id);
+        var result = await _repository.UpdateAsync(account);
+
+        return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(account.Id);
     }
 }

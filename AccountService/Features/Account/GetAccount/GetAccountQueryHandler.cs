@@ -1,5 +1,4 @@
-﻿using AccountService.Exceptions;
-using AccountService.Infrastructure.Repository.Abstractions;
+﻿using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
@@ -23,7 +22,11 @@ public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, MbResult<
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
 
         if (account is null)
-            throw new AccountNotFoundException(request.AccountId);
+            return MbResult<AccountDto>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт с ID '{request.AccountId}' не был найден."
+            });
 
         var dto = _mapper.Map<AccountDto>(account);
 

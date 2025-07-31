@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using AccountService.AutoMapper;
 using AccountService.CurrencyService.Abstractions;
-using AccountService.Exceptions.Handler;
+using AccountService.ExceptionHandler;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
 using AccountService.PipelineBehaviors;

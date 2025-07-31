@@ -1,5 +1,4 @@
-﻿using AccountService.Exceptions;
-using AccountService.Features.Transaction;
+﻿using AccountService.Features.Transaction;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using AutoMapper;
@@ -27,8 +26,14 @@ public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStateme
     public async Task<MbResult<AccountStatementDto>> Handle(GetAccountStatementQuery request,
         CancellationToken cancellationToken)
     {
-        var account = await _accountRepository.GetByIdAsync(request.AccountId)
-                      ?? throw new AccountNotFoundException(request.AccountId);
+        var account = await _accountRepository.GetByIdAsync(request.AccountId);
+
+        if (account is null)
+            return MbResult<AccountStatementDto>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт с ID '{request.AccountId}' не был найден."
+            });
 
         var transactions = await _transactionRepository.GetByAccountIdAsync(request.AccountId);
 
