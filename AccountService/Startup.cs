@@ -29,9 +29,14 @@ public static class Startup
         services.AddSingleton<ICurrencyService, CurrencyService.Implementations.CurrencyService>();
 
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
         services.AddMediatR(c =>
             c.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+        ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
+        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
         services.AddValidatorsFromAssemblyContaining<Program>();
+
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddEndpointsApiExplorer();

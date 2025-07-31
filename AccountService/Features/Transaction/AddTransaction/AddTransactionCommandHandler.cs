@@ -1,12 +1,13 @@
 ﻿using AccountService.Exceptions;
 using AccountService.Infrastructure.Repository.Abstractions;
+using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
 
 namespace AccountService.Features.Transaction.AddTransaction;
 
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
-public class AddTransactionCommandHandler : IRequestHandler<AddTransactionCommand, Guid>
+public class AddTransactionCommandHandler : IRequestHandler<AddTransactionCommand, MbResult<Guid>>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IMapper _mapper;
@@ -20,7 +21,7 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
         _mapper = mapper;
     }
 
-    public async Task<Guid> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
+    public async Task<MbResult<Guid>> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
     {
         var transactionDto = request.Transaction;
 
@@ -43,7 +44,7 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
         await _transactionRepository.AddAsync(transaction);
 
         if (transactionDto.CounterPartyAccountId is null)
-            return transaction.Id;
+            return MbResult<Guid>.Success(transaction.Id);
 
         var counterPartyAccount = await _accountRepository.GetByIdAsync(transactionDto.CounterPartyAccountId.Value)
                                   ?? throw new AccountNotFoundException(transactionDto.CounterPartyAccountId.Value);
@@ -71,6 +72,6 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
 
         await _transactionRepository.AddAsync(mirroredTransaction);
 
-        return transaction.Id;
+        return MbResult<Guid>.Success(transaction.Id);
     }
 }

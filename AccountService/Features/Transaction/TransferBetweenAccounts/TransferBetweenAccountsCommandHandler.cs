@@ -1,12 +1,13 @@
 ﻿using AccountService.CurrencyService.Abstractions;
 using AccountService.Exceptions;
 using AccountService.Infrastructure.Repository.Abstractions;
+using AccountService.PipelineBehaviors;
 using MediatR;
 
 namespace AccountService.Features.Transaction.TransferBetweenAccounts;
 
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
-public class TransferBetweenAccountsCommandHandler : IRequestHandler<TransferBetweenAccountsCommand, Guid>
+public class TransferBetweenAccountsCommandHandler : IRequestHandler<TransferBetweenAccountsCommand, MbResult<Guid>>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyService _currencyService;
@@ -22,7 +23,8 @@ public class TransferBetweenAccountsCommandHandler : IRequestHandler<TransferBet
         _currencyService = currencyService;
     }
 
-    public async Task<Guid> Handle(TransferBetweenAccountsCommand request, CancellationToken cancellationToken)
+    public async Task<MbResult<Guid>> Handle(TransferBetweenAccountsCommand request,
+        CancellationToken cancellationToken)
     {
         if (!_currencyService.IsSupported(request.PayloadModel.Currency))
             throw new CurrencyNotSupportedException(request.PayloadModel.Currency);
@@ -73,6 +75,6 @@ public class TransferBetweenAccountsCommandHandler : IRequestHandler<TransferBet
         await _transactionRepository.AddAsync(debitTransaction);
         await _transactionRepository.AddAsync(creditTransaction);
 
-        return debitTransaction.Id;
+        return MbResult<Guid>.Success(debitTransaction.Id);
     }
 }

@@ -114,7 +114,7 @@ public class AccountsController : ControllerBase
     public async Task<IActionResult> CheckAccountOwnership(Guid ownerId, Guid accountId)
     {
         var account = await _mediator.Send(new GetAccountQuery(accountId));
-        if (account.OwnerId != ownerId)
+        if (account.Result!.OwnerId != ownerId)
             return NotFound("Счёт не найден у данного владельца.");
 
         return Ok(true);
