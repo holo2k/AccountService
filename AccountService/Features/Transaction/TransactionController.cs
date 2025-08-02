@@ -30,13 +30,14 @@ public class TransactionController : ControllerBase
     ///     <br />Credit (Зачисление)
     ///     <br />Debit (Списание)
     /// </remarks>
-    /// <returns>Результат добавления транзакции</returns>
+    /// <returns>Идентификатор созданной транзакции</returns>
     /// <response code="200">Транзакция успешно добавлена</response>
-    /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="400">Ошибка валидации или бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpPost]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Add([FromBody] AddTransactionCommand command)
     {
         var result = await _mediator.Send(command);
@@ -47,13 +48,14 @@ public class TransactionController : ControllerBase
     ///     Перевести средства между счетами.
     /// </summary>
     /// <param name="command">Команда перевода между счетами</param>
-    /// <returns>Результат перевода</returns>
+    /// <returns>Идентификатор выполненного перевода</returns>
     /// <response code="200">Перевод успешно выполнен</response>
-    /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="400">Ошибка валидации или бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpPost("transfer")]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Transfer([FromBody] TransferBetweenAccountsCommand command)
     {
         var result = await _mediator.Send(command);

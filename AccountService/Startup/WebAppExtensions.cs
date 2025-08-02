@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace AccountService.ExceptionHandler;
+namespace AccountService.Startup;
 
-public static class ExceptionHandlingExtensions
+public static class WebAppExtensions
 {
     public static void AddExceptionHandler(this WebApplication app)
     {
@@ -43,6 +43,16 @@ public static class ExceptionHandlingExtensions
                         break;
                 }
             });
+        });
+    }
+
+    public static void AddSwagger(this WebApplication app)
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service API");
+            c.RoutePrefix = "swagger";
         });
     }
 }

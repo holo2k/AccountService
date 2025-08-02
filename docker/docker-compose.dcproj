@@ -5,8 +5,8 @@
     <DockerComposeFilePaths>docker-compose.yml</DockerComposeFilePaths>
     <ProjectVersion>2.1</ProjectVersion>
   </PropertyGroup>
-
   <ItemGroup>
+    <None Include="docker-compose.keycloak.yml" />
     <None Include="docker-compose.yml" />
   </ItemGroup>
 </Project>

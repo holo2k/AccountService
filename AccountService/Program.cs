@@ -6,11 +6,11 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        Startup.ConfigureServices(builder.Services, builder.Configuration);
+        Startup.Startup.ConfigureServices(builder.Services, builder.Configuration);
 
         var app = builder.Build();
 
-        Startup.Configure(app);
+        Startup.Startup.Configure(app);
 
         app.Run();
     }
