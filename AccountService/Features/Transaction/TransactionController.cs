@@ -1,5 +1,6 @@
 ﻿using AccountService.Features.Transaction.AddTransaction;
 using AccountService.Features.Transaction.TransferBetweenAccounts;
+using AccountService.PipelineBehaviors;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> Add([FromBody] AddTransactionCommand command)
     {
         var result = await _mediator.Send(command);
-        return Ok(result);
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -59,6 +60,6 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> Transfer([FromBody] TransferBetweenAccountsCommand command)
     {
         var result = await _mediator.Send(command);
-        return Ok(result);
+        return this.FromResult(result);
     }
 }

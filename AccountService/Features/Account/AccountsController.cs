@@ -5,6 +5,7 @@ using AccountService.Features.Account.GetAccountBalance;
 using AccountService.Features.Account.GetAccountsByOwnerId;
 using AccountService.Features.Account.GetAccountStatement;
 using AccountService.Features.Account.UpdateAccount;
+using AccountService.PipelineBehaviors;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +43,8 @@ public class AccountsController : ControllerBase
     {
         var query = new GetAccountsByOwnerIdQuery(userId);
         var result = await _mediator.Send(query);
-        return Ok(result);
+
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -66,7 +68,7 @@ public class AccountsController : ControllerBase
     public async Task<IActionResult> Add([FromBody] AddAccountCommand command)
     {
         var result = await _mediator.Send(command);
-        return Ok(result);
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -92,7 +94,7 @@ public class AccountsController : ControllerBase
     {
         command.Account.Id = accountId;
         var result = await _mediator.Send(command);
-        return Ok(result);
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -111,7 +113,7 @@ public class AccountsController : ControllerBase
     {
         var command = new DeleteAccountCommand(accountId);
         var result = await _mediator.Send(command);
-        return Ok(result);
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -128,11 +130,12 @@ public class AccountsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CheckAccountOwnership(Guid ownerId, Guid accountId)
     {
-        var account = await _mediator.Send(new GetAccountQuery(accountId));
-        if (account.Result!.OwnerId != ownerId)
-            return NotFound("Счёт не найден у данного владельца.");
+        var result = await _mediator.Send(new GetAccountQuery(accountId));
 
-        return Ok(true);
+        if (!result.IsSuccess || result.Result is null || result.Result.OwnerId != ownerId)
+            return BadRequest(result);
+
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -151,8 +154,9 @@ public class AccountsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetBalance(Guid ownerId)
     {
-        var balance = await _mediator.Send(new GetAccountBalanceQuery(ownerId));
-        return Ok(balance);
+        var result = await _mediator.Send(new GetAccountBalanceQuery(ownerId));
+
+        return this.FromResult(result);
     }
 
     /// <summary>
@@ -178,6 +182,7 @@ public class AccountsController : ControllerBase
     {
         var query = new GetAccountStatementQuery(accountId, from, to);
         var result = await _mediator.Send(query);
-        return Ok(result);
+
+        return this.FromResult(result);
     }
 }

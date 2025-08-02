@@ -1,4 +1,6 @@
-﻿namespace AccountService.PipelineBehaviors;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace AccountService.PipelineBehaviors;
 
 public class MbResult<T>
 {
@@ -25,4 +27,17 @@ public class MbError
     public string Code { get; set; } = default!;
     public string Message { get; set; } = default!;
     public Dictionary<string, string[]>? ValidationErrors { get; set; }
+}
+
+public static class MbResultExtensions
+{
+    public static IActionResult FromResult<T>(this ControllerBase controller, MbResult<T> result)
+    {
+        if (result.Result is null)
+            return controller.NotFound(result);
+
+        return result.IsSuccess
+            ? controller.Ok(result)
+            : controller.BadRequest(result);
+    }
 }

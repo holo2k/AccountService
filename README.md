@@ -14,7 +14,7 @@
 - Получение выписки по транзакциям за период
 - Добавление транзакций (списание, пополнение)
 - Перевод между счетами
-
+- Получение JWT токена
 ---
 
 ## Технологии
@@ -24,6 +24,8 @@
 - FluentValidation
 - AutoMapper
 - Swagger (OpenAPI)
+- Docker, Docker Compose
+- Keycloak
 
 ---
 
@@ -35,8 +37,85 @@
 git clone https://github.com/holo2k/AccountService.git
 cd AccountService
 ````
-Swagger будет доступен по адресу:
-[http://localhost:5000/index.html](http://localhost:5000/index.html)
+После запуска сервис будет доступен по адресу:
+[http://localhost:5000/swagger](http://localhost:5000/swagger)
+
+### Запуск через Docker Compose
+
+Для запуска проекта с сервисом Keycloak и AccountService рекомендуется использовать Docker Compose.
+
+1. Перейдите в папку  `docker`:
+
+```bash
+cd docker
+```
+
+2. Запустите:
+
+```bash
+docker compose up -d --build
+```
+
+3. После запуска сервис будет доступен по адресу:
+   [http://localhost:5000/swagger](http://localhost:5000/swagger)
+
+---
+
+### Запуск из Visual Studio
+
+В Visual Studio можно выбрать проект Docker Compose в качестве стартового (startup project) и запустить его через стандартный запуск Debug/Run.
+Так вы запустите все контейнеры (Keycloak + AccountService) вместе.
+
+---
+## Аутентификация и работа с токеном
+
+### Получение токена
+
+API содержит эндпоинт для получения тестового токена:
+
+```http
+GET /auth/token
+```
+
+Используются следующие тестовые учётные данные:
+
+* username: `testuser`
+* password: `password`
+* client\_id: `account-api`
+
+В ответе возвращается JSON с `access_token` и другими параметрами.
+
+---
+
+### Регистрация токена в Swagger
+
+Чтобы протестировать в Swagger UI:
+
+1. Получите токен через эндпоинт `/auth/token`.
+2. Нажмите кнопку **Authorize** в верхнем правом углу Swagger UI.
+3. Введите в поле Authorization:
+
+   ```
+   <ваш_access_token>
+   ```
+
+   Например:
+
+   ```
+   eyJhbGciOiJIUzI1NiIsInR5cCI6...
+   ```
+4. Нажмите **Authorize** и закройте окно.
+5. Теперь можно выполнять защищённые запросы с токеном.
+
+---
+
+## Использование результата с MbResult
+
+В проекте для стандартного результата используется универсальный класс `MbResult<T>`
+
+* `MbResult<T>` содержит либо успешный результат (`Result`), либо ошибку (`Error`).
+* Используется для унифицированной обработки ошибок и результатов в бизнес-логике.
+* Валидация через FluentValidation интегрирована с `MbResult` — в случае ошибки создаётся объект `MbError` с детальной информацией.
 
 ---
 
