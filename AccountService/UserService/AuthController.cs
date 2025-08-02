@@ -9,11 +9,13 @@ namespace AccountService.UserService;
 [Route("auth")]
 public class AuthController : ControllerBase
 {
+    private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public AuthController(IHttpClientFactory httpClientFactory)
+    public AuthController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -48,9 +50,15 @@ public class AuthController : ControllerBase
             ["password"] = "password"
         };
 
-        var response = await client.PostAsync(
-            "http://keycloak:8080/realms/user-access/protocol/openid-connect/token",
-            new FormUrlEncodedContent(parameters));
+        var authority = _configuration["Keycloak:Authority"];
+
+        if (string.IsNullOrWhiteSpace(authority))
+            return BadRequest(
+                "Keycloak недоступен: сервис запущен изолированно и не имеет доступа к контейнеру аутентификации.");
+
+        var tokenUrl = $"{authority}/protocol/openid-connect/token";
+
+        var response = await client.PostAsync(tokenUrl, new FormUrlEncodedContent(parameters));
 
         var json = await response.Content.ReadAsStringAsync();
 

@@ -33,6 +33,7 @@ public class TransactionController : ControllerBase
     /// <returns>Результат добавления транзакции</returns>
     /// <response code="200">Транзакция успешно добавлена</response>
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpPost]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(400)]
@@ -49,6 +50,7 @@ public class TransactionController : ControllerBase
     /// <returns>Результат перевода</returns>
     /// <response code="200">Перевод успешно выполнен</response>
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpPost("transfer")]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(400)]

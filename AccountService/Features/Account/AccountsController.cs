@@ -33,6 +33,7 @@ public class AccountsController : ControllerBase
     /// <returns>Список счетов пользователя</returns>
     /// <response code="200">Счета успешно получены</response>
     /// <response code="400">Некорректный запрос</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{userId}")]
     [ProducesResponseType(typeof(IEnumerable<AccountDto>), 200)]
     [ProducesResponseType(400)]
@@ -56,6 +57,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID созданного счёта</returns>
     /// <response code="200">Счёт успешно создан</response>
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpPost]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(400)]
@@ -79,6 +81,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID обновленного счёта</returns>
     /// <response code="200">Счёт успешно обновлён</response>
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpPut("{accountId}")]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(400)]
@@ -96,6 +99,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID удалённого счёта</returns>
     /// <response code="200">Счёт успешно удалён</response>
     /// <response code="400">Ошибка бизнес-логики</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpDelete("{accountId}")]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(400)]
@@ -111,7 +115,9 @@ public class AccountsController : ControllerBase
     /// </summary>
     /// <param name="ownerId">ID владельца счета.</param>
     /// <param name="accountId">ID счёта.</param>
-    /// <returns>Статус 200 OK, если счёт принадлежит владельцу; 404 Not Found — если нет.</returns>
+    /// <response code="200">Счёт принадлежит владельцу</response>
+    /// <response code="400">Счёт не принадлежит владельцу</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{accountId}/owner/{ownerId}/exists")]
     public async Task<IActionResult> CheckAccountOwnership(Guid ownerId, Guid accountId)
     {
@@ -130,6 +136,7 @@ public class AccountsController : ControllerBase
     /// <response code="200">Баланс успешно получен.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
     /// <response code="404">Счёт или владелец не найдены.</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{ownerId}/balance")]
     public async Task<IActionResult> GetBalance(Guid ownerId)
     {
@@ -148,6 +155,7 @@ public class AccountsController : ControllerBase
     /// <response code="200">Выписка успешно получена.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
     /// <response code="404">Счёт или владелец не найдены.</response>
+    /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{accountId}/statement")]
     public async Task<IActionResult> GetAccountStatement(
         Guid accountId,
