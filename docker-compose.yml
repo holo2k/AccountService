@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.0.1
+    container_name: keycloak
+    command: start-dev --import-realm
+    ports:
+      - 8080:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-mem
+      KC_FEATURES: import-export
+      KC_METRICS_ENABLED: "true"
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+  account-api:
+    container_name: account-api
+    build: .
+    depends_on:
+      - keycloak
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - Keycloak__Authority=http://keycloak:8080/realms/user-access

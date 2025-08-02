@@ -9,14 +9,18 @@ using AccountService.PipelineBehaviors;
 using AccountService.UserService.Abstractions;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace AccountService;
 
 public static class Startup
 {
-    public static void ConfigureServices(IServiceCollection services)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpClient();
+
         services.AddControllers()
             .AddJsonOptions(options =>
             {
@@ -41,6 +45,19 @@ public static class Startup
 
         services.AddEndpointsApiExplorer();
 
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = configuration["Keycloak:Authority"];
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false
+                };
+                options.RequireHttpsMetadata = false;
+            });
+
+        services.AddAuthorization();
+
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -53,6 +70,28 @@ public static class Startup
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+
+            c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите token в формате {token}"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                            { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
 
         services.AddCors(options =>
@@ -75,6 +114,10 @@ public static class Startup
         app.AddExceptionHandler();
 
         app.UseRouting();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.MapControllers();
     }
 

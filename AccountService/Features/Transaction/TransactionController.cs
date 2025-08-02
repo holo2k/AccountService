@@ -1,6 +1,7 @@
 ﻿using AccountService.Features.Transaction.AddTransaction;
 using AccountService.Features.Transaction.TransferBetweenAccounts;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Features.Transaction;
@@ -10,6 +11,7 @@ namespace AccountService.Features.Transaction;
 /// </summary>
 [ApiController]
 [Route("transactions")]
+[Authorize]
 public class TransactionController : ControllerBase
 {
     private readonly IMediator _mediator;

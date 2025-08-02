@@ -6,6 +6,7 @@ using AccountService.Features.Account.GetAccountsByOwnerId;
 using AccountService.Features.Account.GetAccountStatement;
 using AccountService.Features.Account.UpdateAccount;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Features.Account;
@@ -15,6 +16,7 @@ namespace AccountService.Features.Account;
 /// </summary>
 [ApiController]
 [Route("accounts")]
+[Authorize]
 public class AccountsController : ControllerBase
 {
     private readonly IMediator _mediator;
