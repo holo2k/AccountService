@@ -253,42 +253,53 @@ curl -X POST "http://localhost:5000/transactions/transfer" \
 ## Структура проекта
 
 ```
-\---AccountService
-    |
-    +---AutoMapper
-    |
-    +---CurrencyService (заглушка сервиса валют)
-    |   +---Abstractions
-    |   \---Implementations
-    |
-    +---Exceptions
-    |   \---Handler
-    |
-    +---Features
-    |   +---Account
-    |   |   +---AddAccount
-    |   |   +---DeleteAccount
-    |   |   +---GetAccount
-    |   |   +---GetAccountsByOwnerId
-    |   |   +---GetAccountStatement
-    |   |   \---UpdateAccount
-    |   |
-    |   \---Transaction
-    |       +---AddTransaction
-    |       \---TransferBetweenAccounts
-    |
-    +---Infrastructure
-    |   \---Repository (заглушка хранения счетов и транзакций)
-    |       +---Abstractions
-    |       \---Implementations
-    |
-    +---PipelineBehaviors
-    |
-    +---Properties
-    |
-    \---UserService (заглушка сервиса верификации клиентов)
-        +---Abstractions
-        \---Implementations
+AccountService
+│   AccountService.csproj
+│   Program.cs
+│   appsettings.json
+│
+├───AutoMapper
+│       MappingProfile.cs
+│
+├───CurrencyService          // заглушка сервиса валют
+│   ├───Abstractions
+│   │       ICurrencyService.cs
+│   └───Implementations
+│           CurrencyService.cs
+│
+├───Features
+│   ├───Account
+│   │   ├───AddAccount
+│   │   ├───DeleteAccount
+│   │   ├───GetAccount
+│   │   ├───GetAccountBalance
+│   │   ├───GetAccountsByOwnerId
+│   │   ├───GetAccountStatement
+│   │   └───UpdateAccount
+│   │       ...
+│   └───Transaction
+│       ├───AddTransaction
+│       └───TransferBetweenAccounts
+│           ...
+│
+├───Infrastructure           // заглушка хранения счетов и транзакций
+│   └───Repository
+│       ├───Abstractions
+│       └───Implementations
+│
+├───PipelineBehaviors
+│       MbResult.cs
+│       ValidationBehavior.cs
+│
+├───Startup
+│       Startup.cs
+│       ServiceCollectionExtensions.cs
+│
+├───UserService              // заглушка сервиса верификации клиентов
+│   ├───Abstractions
+│   └───Implementations
+│       ...
+
 ```
 ## Контакты
 
