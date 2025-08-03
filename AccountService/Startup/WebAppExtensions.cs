@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using System.Text.Json;
+using AccountService.PipelineBehaviors;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace AccountService.Startup;
@@ -16,43 +18,64 @@ public static class WebAppExtensions
 
                 context.Response.ContentType = "application/json";
 
+                MbResult<object> result;
+                int statusCode;
+
                 switch (exception)
                 {
                     case ValidationException validationException:
-                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                        await context.Response.WriteAsJsonAsync(new
+                        statusCode = StatusCodes.Status400BadRequest;
+                        var firstError = validationException.Errors.First();
+                        result = MbResult<object>.Fail(new MbError
                         {
-                            Title = "Ошибка во время проверки",
-                            Status = 400,
-                            Errors = validationException.Errors.Select(e => new
+                            Code = "ValidationError",
+                            Message = $"{firstError.ErrorMessage}",
+                            ValidationErrors = new Dictionary<string, string[]>
                             {
-                                e.PropertyName,
-                                e.ErrorMessage
-                            })
+                                [firstError.PropertyName] = new[] { firstError.ErrorMessage }
+                            }
                         });
                         break;
 
                     default:
-                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                        await context.Response.WriteAsJsonAsync(new
+                        statusCode = StatusCodes.Status500InternalServerError;
+                        result = MbResult<object>.Fail(new MbError
                         {
-                            Title = "Внутренняя ошибка сервера",
-                            Status = 500,
-                            exception?.Message
+                            Code = "InternalServerError",
+                            Message = $"{exception!.Message}"
                         });
                         break;
                 }
+
+                context.Response.StatusCode = statusCode;
+                var json = JsonSerializer.Serialize(result);
+                await context.Response.WriteAsync(json);
             });
         });
     }
 
     public static void AddSwagger(this WebApplication app)
     {
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path == "/")
+            {
+                context.Response.Redirect("/swagger", true);
+                return;
+            }
+
+            await next();
+        });
+
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service API");
             c.RoutePrefix = "swagger";
+
+            c.OAuthClientId("account-api");
+
+            c.OAuthScopes("openid", "profile", "email", "roles");
         });
     }
 }

@@ -38,7 +38,7 @@ public static class Startup
         services.AddEndpointsApiExplorer();
 
         services.AddAuthentication(configuration);
-        services.AddSwagger();
+        services.AddSwagger(configuration);
         services.AddCors();
     }
 

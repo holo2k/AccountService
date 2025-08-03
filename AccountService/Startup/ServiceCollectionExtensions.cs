@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -7,7 +9,7 @@ namespace AccountService.Startup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerGen(c =>
         {
@@ -23,14 +25,21 @@ public static class ServiceCollectionExtensions
 
             if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 
-            c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+            c.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
             {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = JwtBearerDefaults.AuthenticationScheme,
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Введите token в формате {token}"
+                Description = "Для входа используйте тестового пользователя - testuser : password",
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                {
+                    Implicit = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri(configuration["Keycloak:SwaggerAuthUrl"]!),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "openid", "OpenID" }
+                        }
+                    }
+                }
             });
 
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -39,9 +48,12 @@ public static class ServiceCollectionExtensions
                     new OpenApiSecurityScheme
                     {
                         Reference = new OpenApiReference
-                            { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "oauth2"
+                        }
                     },
-                    Array.Empty<string>()
+                    new[] { "openid" }
                 }
             });
         });
@@ -57,9 +69,36 @@ public static class ServiceCollectionExtensions
                 options.Authority = configuration["Keycloak:Authority"];
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidIssuers = new[]
+                    {
+                        configuration["Keycloak:Authority"],
+                        configuration["Keycloak:LocalAuthority"]
+                    }
                 };
                 options.RequireHttpsMetadata = false;
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+
+                        var error = new MbError
+                        {
+                            Code = "Unauthorized",
+                            Message = context.ErrorDescription!
+                        };
+
+                        var result = MbResult<object>.Fail(error);
+                        var json = JsonSerializer.Serialize(result);
+
+                        context.Response.ContentType = "application/json";
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                        return context.Response.WriteAsync(json);
+                    }
+                };
             });
 
         services.AddAuthorization();

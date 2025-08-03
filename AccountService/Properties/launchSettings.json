@@ -13,7 +13,10 @@
       "launchBrowser": true,
       "launchUrl": "http://localhost:5000",
       "httpPort": 5000,
-      "useSSL": false
+      "useSSL": false,
+      "environmentVariables": {
+        "Keycloak__Authority": ""
+      }
     }
   }
 }
