@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
 
             if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 
-            c.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
+            c.AddSecurityDefinition("Keycloak OAuth2", new OpenApiSecurityScheme
             {
                 Description = "Для входа используйте тестового пользователя - testuser : password",
                 Type = SecuritySchemeType.OAuth2,
@@ -42,6 +42,14 @@ public static class ServiceCollectionExtensions
                 }
             });
 
+            c.AddSecurityDefinition("Keycloak ApiKey", new OpenApiSecurityScheme
+            {
+                Description = "Для входа введите Bearer [пробел] {access_token}",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey
+            });
+
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
@@ -50,10 +58,21 @@ public static class ServiceCollectionExtensions
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "oauth2"
+                            Id = "Keycloak OAuth2"
                         }
                     },
                     new[] { "openid" }
+                },
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Keycloak ApiKey"
+                        }
+                    },
+                    Array.Empty<string>()
                 }
             });
         });
