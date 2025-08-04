@@ -65,11 +65,13 @@ public static class MbResultExtensions
 {
     public static IActionResult FromResult<T>(this ControllerBase controller, MbResult<T> result)
     {
-        if (result.Result is null)
-            return controller.NotFound(result);
+        if (!result.IsSuccess)
+            return result.Error?.Code switch
+            {
+                "NotFound" => controller.NotFound(result),
+                _ => controller.BadRequest(result)
+            };
 
-        return result.IsSuccess
-            ? controller.Ok(result)
-            : controller.BadRequest(result);
+        return controller.Ok(result);
     }
 }
