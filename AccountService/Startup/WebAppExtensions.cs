@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using AccountService.PipelineBehaviors;
-using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace AccountService.Startup;
@@ -18,36 +17,13 @@ public static class WebAppExtensions
 
                 context.Response.ContentType = "application/json";
 
-                MbResult<object> result;
-                int statusCode;
-
-                switch (exception)
+                var result = MbResult<object>.Fail(new MbError
                 {
-                    case ValidationException validationException:
-                        statusCode = StatusCodes.Status400BadRequest;
-                        var firstError = validationException.Errors.First();
-                        result = MbResult<object>.Fail(new MbError
-                        {
-                            Code = "ValidationError",
-                            Message = $"{firstError.ErrorMessage}",
-                            ValidationErrors = new Dictionary<string, string[]>
-                            {
-                                [firstError.PropertyName] = new[] { firstError.ErrorMessage }
-                            }
-                        });
-                        break;
+                    Code = "InternalServerError",
+                    Message = $"{exception!.Message}"
+                });
 
-                    default:
-                        statusCode = StatusCodes.Status500InternalServerError;
-                        result = MbResult<object>.Fail(new MbError
-                        {
-                            Code = "InternalServerError",
-                            Message = $"{exception!.Message}"
-                        });
-                        break;
-                }
-
-                context.Response.StatusCode = statusCode;
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 var json = JsonSerializer.Serialize(result);
                 await context.Response.WriteAsync(json);
             });
