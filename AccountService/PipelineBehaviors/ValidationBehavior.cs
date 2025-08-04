@@ -32,9 +32,26 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             .Where(f => f != null)
             .ToList();
 
-        if (failures.Count != 0)
-            throw new ValidationException(failures);
+        if (failures.Count <= 0) return await next(cancellationToken);
 
-        return await next(cancellationToken);
+        var first = failures.First();
+
+        var mbError = new MbError
+        {
+            Code = "ValidationFailure",
+            Message = "Ошибка во время валидации",
+            ValidationErrors = new Dictionary<string, string[]>
+            {
+                [first.PropertyName] = new[] { first.ErrorMessage }
+            }
+        };
+
+        var responseType = typeof(TResponse);
+        if (!responseType.IsGenericType || responseType.GetGenericTypeDefinition() != typeof(MbResult<>))
+            throw new InvalidOperationException("ValidationBehavior expects TResponse to be MbResult<T>.");
+
+        var failMethod = responseType.GetMethod("Fail", new[] { typeof(MbError) })!;
+        var result = failMethod.Invoke(null, new object[] { mbError })!;
+        return (TResponse)result;
     }
 }

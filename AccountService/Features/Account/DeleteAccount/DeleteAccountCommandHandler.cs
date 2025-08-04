@@ -1,10 +1,11 @@
 ﻿using AccountService.Infrastructure.Repository.Abstractions;
+using AccountService.PipelineBehaviors;
 using MediatR;
 
 namespace AccountService.Features.Account.DeleteAccount;
 
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
-public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand, Guid>
+public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand, MbResult<Guid>>
 {
     private readonly IAccountRepository _repository;
 
@@ -13,10 +14,10 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
         _repository = repository;
     }
 
-    public async Task<Guid> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
+    public async Task<MbResult<Guid>> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
     {
-        await _repository.DeleteAsync(request.AccountId);
+        var result = await _repository.DeleteAsync(request.AccountId);
 
-        return request.AccountId;
+        return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(request.AccountId);
     }
 }

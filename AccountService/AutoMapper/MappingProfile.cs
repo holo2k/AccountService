@@ -17,5 +17,9 @@ public class MappingProfile : Profile
 
         CreateMap<AddAccountRequest, Account>()
             .ReverseMap();
+
+        CreateMap<Account, AccountStatementDto>()
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Transactions, opt => opt.Ignore());
     }
 }

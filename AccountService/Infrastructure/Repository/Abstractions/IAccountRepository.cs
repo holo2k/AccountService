@@ -1,12 +1,14 @@
 ﻿using AccountService.Features.Account;
+using AccountService.PipelineBehaviors;
+using MediatR;
 
 namespace AccountService.Infrastructure.Repository.Abstractions;
 
 public interface IAccountRepository
 {
     Task<ICollection<Account>> GetByUserIdAsync(Guid ownerId);
-    Task<Account> GetByIdAsync(Guid id);
+    Task<Account?> GetByIdAsync(Guid id);
     Task AddAsync(Account account);
-    Task UpdateAsync(Account account);
-    Task DeleteAsync(Guid id);
+    Task<MbResult<Unit>> UpdateAsync(Account account);
+    Task<MbResult<Unit>> DeleteAsync(Guid id);
 }

@@ -1,12 +1,12 @@
-﻿using AccountService.Exceptions;
-using AccountService.Infrastructure.Repository.Abstractions;
+﻿using AccountService.Infrastructure.Repository.Abstractions;
+using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
 
 namespace AccountService.Features.Account.GetAccount;
 
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
-public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, AccountDto>
+public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, MbResult<AccountDto>>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IMapper _mapper;
@@ -17,13 +17,19 @@ public class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, AccountDt
         _mapper = mapper;
     }
 
-    public async Task<AccountDto> Handle(GetAccountQuery request, CancellationToken cancellationToken)
+    public async Task<MbResult<AccountDto>> Handle(GetAccountQuery request, CancellationToken cancellationToken)
     {
         var account = await _accountRepository.GetByIdAsync(request.AccountId);
 
         if (account is null)
-            throw new AccountNotFoundException(request.AccountId);
+            return MbResult<AccountDto>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт с ID '{request.AccountId}' не был найден."
+            });
 
-        return _mapper.Map<AccountDto>(account);
+        var dto = _mapper.Map<AccountDto>(account);
+
+        return MbResult<AccountDto>.Success(dto);
     }
 }

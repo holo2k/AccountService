@@ -1,13 +1,13 @@
-﻿using AccountService.Exceptions;
-using AccountService.Features.Transaction;
+﻿using AccountService.Features.Transaction;
 using AccountService.Infrastructure.Repository.Abstractions;
+using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
 
 namespace AccountService.Features.Account.GetAccountStatement;
 
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
-public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, AccountStatementDto>
+public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, MbResult<AccountStatementDto>>
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IMapper _mapper;
@@ -23,10 +23,17 @@ public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStateme
         _mapper = mapper;
     }
 
-    public async Task<AccountStatementDto> Handle(GetAccountStatementQuery request, CancellationToken cancellationToken)
+    public async Task<MbResult<AccountStatementDto>> Handle(GetAccountStatementQuery request,
+        CancellationToken cancellationToken)
     {
-        var account = await _accountRepository.GetByIdAsync(request.AccountId)
-                      ?? throw new AccountNotFoundException(request.AccountId);
+        var account = await _accountRepository.GetByIdAsync(request.AccountId);
+
+        if (account is null)
+            return MbResult<AccountStatementDto>.Fail(new MbError
+            {
+                Code = "NotFound",
+                Message = $"Счёт с ID '{request.AccountId}' не был найден."
+            });
 
         var transactions = await _transactionRepository.GetByAccountIdAsync(request.AccountId);
 
@@ -37,14 +44,9 @@ public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStateme
 
         var transactionDtoList = _mapper.Map<List<TransactionDto>>(filteredTransactions);
 
-        return new AccountStatementDto
-        {
-            AccountId = account.Id,
-            OwnerId = account.OwnerId,
-            Currency = account.Currency,
-            Type = account.Type,
-            Balance = account.Balance,
-            Transactions = transactionDtoList
-        };
+        var dto = _mapper.Map<AccountStatementDto>(account);
+        dto.Transactions = transactionDtoList;
+
+        return MbResult<AccountStatementDto>.Success(dto);
     }
 }
