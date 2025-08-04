@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+namespace AccountService.Features.Transaction;
+
 /// <summary>
 ///     Контроллер для работы с транзакциями.
 /// </summary>
