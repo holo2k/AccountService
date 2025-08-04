@@ -1,12 +1,14 @@
 ﻿using System.Text.Json.Serialization;
 using AccountService.AutoMapper;
 using AccountService.CurrencyService.Abstractions;
+using AccountService.Filters;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
 using AccountService.PipelineBehaviors;
 using AccountService.UserService.Abstractions;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Startup;
 
@@ -16,9 +18,11 @@ public static class Startup
     {
         services.AddHttpClient();
 
-        services.AddControllers()
+        services.AddControllers(options => { options.Filters.Add<ModelValidationFilter>(); })
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+        services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 
         services.AddSingleton<IAccountRepository, AccountRepository>();
         services.AddSingleton<ITransactionRepository, TransactionRepository>();
