@@ -37,8 +37,9 @@ public class AuthController : ControllerBase
     /// <response code="400">Ошибка при получении токена</response>
     /// <response code="404">Сервер авторизации не найден</response>
     [HttpGet("token")]
-    [ProducesResponseType(typeof(string), 200)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetToken()
     {
         var token = await _userService.GetToken();

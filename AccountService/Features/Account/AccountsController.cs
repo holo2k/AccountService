@@ -36,14 +36,12 @@ public class AccountsController : ControllerBase
     /// <response code="400">Некорректный запрос</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{userId}")]
-    [ProducesResponseType(typeof(ICollection<AccountDto>), 200)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetByUserId(Guid userId)
     {
-        var query = new GetAccountsByOwnerIdQuery(userId);
-        var result = await _mediator.Send(query);
-
+        var result = await _mediator.Send(new GetAccountsByOwnerIdQuery(userId));
         return this.FromResult(result);
     }
 
@@ -62,13 +60,14 @@ public class AccountsController : ControllerBase
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpPost]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Add([FromBody] AddAccountCommand command)
     {
         var result = await _mediator.Send(command);
-        return this.FromResult(result);
+
+        return !result.IsSuccess ? this.FromResult(result) : StatusCode(StatusCodes.Status201Created, result);
     }
 
     /// <summary>
@@ -87,9 +86,9 @@ public class AccountsController : ControllerBase
     /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpPut("{accountId}")]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Update(Guid accountId, [FromBody] UpdateAccountCommand command)
     {
         command.Account.Id = accountId;
@@ -106,9 +105,9 @@ public class AccountsController : ControllerBase
     /// <response code="400">Ошибка бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpDelete("{accountId}")]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Delete(Guid accountId)
     {
         var command = new DeleteAccountCommand(accountId);
@@ -125,9 +124,9 @@ public class AccountsController : ControllerBase
     /// <response code="400">Счёт не принадлежит владельцу</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{accountId}/owner/{ownerId}/exists")]
-    [ProducesResponseType(typeof(AccountDto), 200)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CheckAccountOwnership(Guid ownerId, Guid accountId)
     {
         var result = await _mediator.Send(new GetAccountQuery(accountId));
@@ -148,10 +147,10 @@ public class AccountsController : ControllerBase
     /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{ownerId}/balance")]
-    [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetBalance(Guid ownerId)
     {
         var result = await _mediator.Send(new GetAccountBalanceQuery(ownerId));
@@ -171,10 +170,10 @@ public class AccountsController : ControllerBase
     /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="401">Неавторизованный запрос</response>
     [HttpGet("{accountId}/statement")]
-    [ProducesResponseType(typeof(AccountStatementDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAccountStatement(
         Guid accountId,
         [FromQuery] DateTime from,
