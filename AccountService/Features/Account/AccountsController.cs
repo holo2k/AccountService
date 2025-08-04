@@ -35,10 +35,12 @@ public class AccountsController : ControllerBase
     /// <response code="200">Счета успешно получены</response>
     /// <response code="400">Некорректный запрос</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{userId}")]
     [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GetByUserId(Guid userId)
     {
         var result = await _mediator.Send(new GetAccountsByOwnerIdQuery(userId));
@@ -57,12 +59,14 @@ public class AccountsController : ControllerBase
     /// <param name="command">Данные нового счёта</param>
     /// <returns>ID созданного счёта</returns>
     /// <response code="200">Счёт успешно создан</response>
-    /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="400">Ошибка в команде</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpPost]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Add([FromBody] AddAccountCommand command)
     {
         var result = await _mediator.Send(command);
@@ -83,12 +87,16 @@ public class AccountsController : ControllerBase
     /// <param name="command">Данные для обновления</param>
     /// <returns>ID обновленного счёта</returns>
     /// <response code="200">Счёт успешно обновлён</response>
-    /// <response code="400">Ошибка во время проверки или бизнес-логики</response>
+    /// <response code="400">Ошибка в команде</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Не найден счёт</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpPut("{accountId}")]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Update(Guid accountId, [FromBody] UpdateAccountCommand command)
     {
         command.Account.Id = accountId;
@@ -104,10 +112,14 @@ public class AccountsController : ControllerBase
     /// <response code="200">Счёт успешно удалён</response>
     /// <response code="400">Ошибка бизнес-логики</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Не найден счёт</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpDelete("{accountId}")]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Delete(Guid accountId)
     {
         var command = new DeleteAccountCommand(accountId);
@@ -123,15 +135,20 @@ public class AccountsController : ControllerBase
     /// <response code="200">Счёт принадлежит владельцу</response>
     /// <response code="400">Счёт не принадлежит владельцу</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Счёт не найден</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{accountId}/owner/{ownerId}/exists")]
     [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CheckAccountOwnership(Guid ownerId, Guid accountId)
     {
         var result = await _mediator.Send(new GetAccountQuery(accountId));
 
-        if (!result.IsSuccess || result.Result is null || result.Result.OwnerId != ownerId)
+        // ReSharper disable once ConvertIfStatementToReturnStatement (Требует слишком большой тернарный оператор)
+        if (result.Result!.OwnerId != ownerId)
             return BadRequest(result);
 
         return this.FromResult(result);
@@ -144,13 +161,15 @@ public class AccountsController : ControllerBase
     /// <returns>Статус 200 OK, если счёт принадлежит владельцу; 404 Not Found — если нет.</returns>
     /// <response code="200">Баланс успешно получен.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
-    /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Счёт или владелец не найдены.</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{ownerId}/balance")]
     [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<decimal>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GetBalance(Guid ownerId)
     {
         var result = await _mediator.Send(new GetAccountBalanceQuery(ownerId));
@@ -167,13 +186,15 @@ public class AccountsController : ControllerBase
     /// <returns>Список транзакций и информация о счёте за указанный период.</returns>
     /// <response code="200">Выписка успешно получена.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
-    /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Счёт или владелец не найдены.</response>
+    /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{accountId}/statement")]
     [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<AccountStatementDto>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GetAccountStatement(
         Guid accountId,
         [FromQuery] DateTime from,

@@ -38,7 +38,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         var mbError = new MbError
         {
-            Code = "Validation",
+            Code = "ValidationFailure",
             Message = $"{first.ErrorMessage}",
             ValidationErrors = new Dictionary<string, string[]>
             {

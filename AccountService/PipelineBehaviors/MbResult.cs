@@ -68,8 +68,10 @@ public static class MbResultExtensions
         if (!result.IsSuccess)
             return result.Error?.Code switch
             {
-                "NotFound" => controller.NotFound(result),
-                _ => controller.BadRequest(result)
+                "NotFound" => controller.NotFound(result), //404
+                "ValidationFailure" => controller.UnprocessableEntity(result), //422
+                "InsufficientFunds" => controller.Conflict(result), //409
+                _ => controller.BadRequest(result) //400
             };
 
         return controller.Ok(result);

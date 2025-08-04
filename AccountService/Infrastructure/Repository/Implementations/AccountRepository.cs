@@ -34,7 +34,7 @@ public class AccountRepository : IAccountRepository
             return Task.FromResult(MbResult<Unit>.Fail(new MbError
             {
                 Code = "NotFound",
-                Message = $"Аккаунт с ID {account.Id} не найден"
+                Message = $"Счёт с ID {account.Id} не найден"
             }));
 
         _accounts[index] = account;
@@ -49,7 +49,7 @@ public class AccountRepository : IAccountRepository
             return Task.FromResult(MbResult<Unit>.Fail(new MbError
             {
                 Code = "NotFound",
-                Message = $"Аккаунт с ID {id} не найден"
+                Message = $"Счёт с ID {id} не найден"
             }));
 
         _accounts.Remove(account);

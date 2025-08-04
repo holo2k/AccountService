@@ -5,8 +5,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AccountService.Features.Transaction;
-
 /// <summary>
 ///     Контроллер для работы с транзакциями.
 /// </summary>
@@ -33,12 +31,18 @@ public class TransactionController : ControllerBase
     /// </remarks>
     /// <returns>Идентификатор созданной транзакции</returns>
     /// <response code="201">Транзакция успешно добавлена</response>
-    /// <response code="400">Ошибка валидации или бизнес-логики</response>
+    /// <response code="400">Ошибка в команде</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Счёт не найден</response>
+    /// <response code="409">Недостаточно средств</response>
+    /// <response code="422">Ошибка валидации</response>
     [HttpPost]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Add([FromBody] AddTransactionCommand command)
     {
         var result = await _mediator.Send(command);
@@ -52,12 +56,18 @@ public class TransactionController : ControllerBase
     /// <param name="command">Команда перевода между счетами</param>
     /// <returns>Идентификатор выполненного перевода</returns>
     /// <response code="200">Перевод успешно выполнен</response>
-    /// <response code="400">Ошибка валидации или бизнес-логики</response>
+    /// <response code="400">Ошибка в команде</response>
     /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="404">Один из счетов не найден</response>
+    /// <response code="409">Недостаточно средств</response>
+    /// <response code="422">Ошибка валидации</response>
     [HttpPost("transfer")]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Transfer([FromBody] TransferBetweenAccountsCommand command)
     {
         var result = await _mediator.Send(command);
