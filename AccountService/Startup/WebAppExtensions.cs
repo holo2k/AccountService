@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+﻿using AccountService.Infrastructure;
 using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Diagnostics;
+using System.Text.Json;
 
 namespace AccountService.Startup;
 
@@ -53,5 +54,12 @@ public static class WebAppExtensions
 
             c.OAuthScopes("openid", "profile", "email", "roles");
         });
+    }
+
+    public static async Task MigrateDatabaseAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        await using var appDbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await DbContextInitializer.Migrate(appDbContext);
     }
 }
