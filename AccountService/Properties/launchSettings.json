@@ -6,13 +6,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "http://localhost:80"
     },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5000",
-      "httpPort": 5000,
+      "launchUrl": "http://localhost:80",
+      "httpPort": 80,
       "useSSL": false,
       "environmentVariables": {
         "Keycloak__Authority": ""

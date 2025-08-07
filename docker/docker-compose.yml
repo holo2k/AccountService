@@ -10,10 +10,31 @@ services:
     depends_on:
       - keycloak
     ports:
-      - "5000:80"
+      - "80:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - Keycloak__Authority=http://keycloak:8080/realms/user-access
       - Keycloak__LocalAuthority=http://localhost:8080/realms/user-access
       - Keycloak__SwaggerAuthUrl=http://localhost:8080/realms/user-access/protocol/openid-connect/auth
+  postgres-api:
+    image: postgres:15
+    container_name: postgres-api
+    restart: always
+    environment:
+      POSTGRES_DB: account_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_api_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_api_data:

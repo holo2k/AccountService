@@ -2,6 +2,7 @@
 using AccountService.AutoMapper;
 using AccountService.CurrencyService.Abstractions;
 using AccountService.Filters;
+using AccountService.Infrastructure;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
 using AccountService.PipelineBehaviors;
@@ -9,6 +10,7 @@ using AccountService.UserService.Abstractions;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Startup;
 
@@ -17,6 +19,10 @@ public static class Startup
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient();
+
+        var connection = configuration.GetConnectionString("DefaultConnection");
+
+        DbContextInitializer.Initialize(services, connection ?? throw new ArgumentNullException(connection));
 
         services.AddControllers(options => { options.Filters.Add<ModelValidationFilter>(); })
             .AddJsonOptions(options =>
@@ -47,9 +53,11 @@ public static class Startup
     }
 
 
-    public static void Configure(WebApplication app)
+    public static async Task Configure(WebApplication app)
     {
         app.UseCors("AllowAll");
+
+        await app.MigrateDatabaseAsync();
 
         app.AddSwagger();
 
