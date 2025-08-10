@@ -1,7 +1,11 @@
-﻿using AccountService.Infrastructure.Repository.Abstractions;
+﻿using System.Data;
+using AccountService.Infrastructure.Repository;
+using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AccountService.Features.Transaction.AddTransaction;
 
@@ -9,45 +13,69 @@ namespace AccountService.Features.Transaction.AddTransaction;
 public class AddTransactionCommandHandler : IRequestHandler<AddTransactionCommand, MbResult<Guid>>
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ITransactionRepository _transactionRepository;
 
     public AddTransactionCommandHandler(
         ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
-        IMapper mapper)
+        IMapper mapper,
+        AppDbContext dbContext)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _mapper = mapper;
+        _dbContext = dbContext;
     }
 
     public async Task<MbResult<Guid>> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
     {
         var dto = request.Transaction;
 
-        var accountResult = await LoadAndValidateMainAccount(dto);
-        if (!accountResult.IsSuccess) return MbResult<Guid>.Fail(accountResult.Error!);
+        await using var transaction = await _dbContext.Database
+            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-        var account = accountResult.Result!;
+        try
+        {
+            var accountResult = await LoadAndValidateMainAccount(dto);
+            if (!accountResult.IsSuccess)
+                return await FailAndRollback(transaction, accountResult.Error!, cancellationToken);
 
-        var balanceResult = UpdateAccountBalance(account, dto);
-        if (!balanceResult.IsSuccess) return MbResult<Guid>.Fail(balanceResult.Error!);
+            var account = accountResult.Result!;
 
-        var updateResult = await _accountRepository.UpdateAsync(account);
-        if (!updateResult.IsSuccess) return MbResult<Guid>.Fail(updateResult.Error!);
+            var balanceResult = UpdateAccountBalance(account, dto);
+            if (!balanceResult.IsSuccess)
+                return await FailAndRollback(transaction, balanceResult.Error!, cancellationToken);
 
-        var transaction = CreateTransaction(dto);
-        await _transactionRepository.AddAsync(transaction);
+            var updateResult = await _accountRepository.UpdateAsync(account);
+            if (!updateResult.IsSuccess)
+                return await FailAndRollback(transaction, updateResult.Error!, cancellationToken);
 
-        if (dto.CounterPartyAccountId is null)
-            return MbResult<Guid>.Success(transaction.Id);
+            var transactionEntity = CreateTransaction(dto);
+            await _transactionRepository.AddAsync(transactionEntity);
 
-        var counterPartyResult = await HandleCounterParty(dto, account);
+            if (dto.CounterPartyAccountId is not null)
+            {
+                var counterPartyResult = await HandleCounterParty(dto, account);
+                if (!counterPartyResult.IsSuccess)
+                    return await FailAndRollback(transaction, counterPartyResult.Error!, cancellationToken);
+            }
 
-        return !counterPartyResult.IsSuccess
-            ? MbResult<Guid>.Fail(counterPartyResult.Error!)
-            : MbResult<Guid>.Success(transaction.Id);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return MbResult<Guid>.Success(transactionEntity.Id);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return MbResult<Guid>.Fail(new MbError
+            {
+                Code = "TransferError",
+                Message = ex.Message
+            });
+        }
     }
 
     private async Task<MbResult<Account.Account>> LoadAndValidateMainAccount(TransactionDto dto)
@@ -129,5 +157,12 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
 
         await _transactionRepository.AddAsync(mirroredTransaction);
         return MbResult<Guid>.Success(mirroredTransaction.Id);
+    }
+
+    private static async Task<MbResult<Guid>> FailAndRollback(IDbContextTransaction transaction, MbError error,
+        CancellationToken cancellationToken)
+    {
+        await transaction.RollbackAsync(cancellationToken);
+        return MbResult<Guid>.Fail(error);
     }
 }
