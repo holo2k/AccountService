@@ -29,8 +29,8 @@ public static class Startup
 
         services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 
-        services.AddSingleton<IAccountRepository, AccountRepository>();
-        services.AddSingleton<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddSingleton<IUserService, UserService.Implementations.UserService>();
         services.AddSingleton<ICurrencyService, CurrencyService.Implementations.CurrencyService>();
 
