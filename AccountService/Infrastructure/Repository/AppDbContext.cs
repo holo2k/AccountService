@@ -17,25 +17,30 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Account>()
-            .Property<uint>("Version")
-            .IsRowVersion()
-            .HasColumnName("xmin");
+        modelBuilder.Entity<Account>(entity =>
+        {
+            entity.Property<uint>("Version")
+                .IsRowVersion()
+                .HasColumnName("xmin");
 
-        modelBuilder.Entity<Account>()
-            .HasIndex(a => a.OwnerId)
-            .HasMethod("hash");
+            entity.HasIndex(a => a.OwnerId)
+                .HasMethod("hash");
 
-        modelBuilder.Entity<Transaction>()
-            .HasIndex(t => new { t.AccountId, t.Date });
+            entity.Property(e => e.CloseDate)
+                .HasColumnType("timestamp with time zone");
 
-        modelBuilder.Entity<Transaction>()
-            .HasIndex(t => t.Date)
-            .HasMethod("gist");
+            entity.Property(e => e.OpenDate)
+                .HasColumnType("timestamp with time zone");
+        });
 
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(t => t.Id);
+
+            entity.HasIndex(t => new { t.AccountId, t.Date });
+
+            entity.HasIndex(t => t.Date)
+                .HasMethod("gist");
 
             entity.Property(t => t.Type)
                 .HasConversion<string>()
@@ -53,7 +58,7 @@ public class AppDbContext : DbContext
                 .HasMaxLength(500);
 
             entity.Property(t => t.Date)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne<Account>()
                 .WithMany(a => a.Transactions)

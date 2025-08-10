@@ -73,6 +73,7 @@ public static class MbResultExtensions
                 "InsufficientFunds" => controller.Conflict(result), //409
                 "TransferError" => controller.Conflict(result), //409
                 "ConcurrencyConflict" => controller.Conflict(result), //409
+                "AccrueFailed" => controller.StatusCode(500, result), //500
                 _ => controller.BadRequest(result) //400
             };
 

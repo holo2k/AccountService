@@ -5,9 +5,12 @@ using AccountService.Filters;
 using AccountService.Infrastructure;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
+using AccountService.Jobs;
 using AccountService.PipelineBehaviors;
 using AccountService.UserService.Abstractions;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +41,12 @@ public static class Startup
 
         services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
+        services.AddHangfire(config =>
+            config.UsePostgreSqlStorage(options => { options.UseNpgsqlConnection(connection); })
+        );
+
+        services.AddHangfireServer();
+
         ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
         ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
         services.AddValidatorsFromAssemblyContaining<Program>();
@@ -57,6 +66,12 @@ public static class Startup
         app.UseCors("AllowAll");
 
         await app.MigrateDatabaseAsync();
+
+        var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+        recurringJobManager.AddOrUpdate<InterestAccrualJob>(
+            "AccrueInterestJob",
+            job => job.RunAsync(),
+            Cron.Daily(0, 0));
 
         app.AddSwagger();
 

@@ -1,4 +1,5 @@
-﻿using AccountService.Features.Account;
+﻿using System.Data;
+using AccountService.Features.Account;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using MediatR;
@@ -19,6 +20,13 @@ public class AccountRepository : IAccountRepository
     {
         return await _dbContext.Accounts
             .Where(a => a.OwnerId == ownerId)
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<Account>> GetActiveDepositAccountsAsync()
+    {
+        return await _dbContext.Accounts
+            .Where(a => a.Type == AccountType.Deposit && a.CloseDate == null)
             .ToListAsync();
     }
 
@@ -68,5 +76,22 @@ public class AccountRepository : IAccountRepository
         await _dbContext.SaveChangesAsync();
 
         return MbResult<Unit>.Success(Unit.Value);
+    }
+
+    public async Task<bool> AccrueInterestAsync(Guid accountId)
+    {
+        var conn = _dbContext.Database.GetDbConnection();
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = "CALL accrue_interest(@accountId)";
+        var param = cmd.CreateParameter();
+        param.ParameterName = "accountId";
+        param.Value = accountId;
+        cmd.Parameters.Add(param);
+
+        if (conn.State != ConnectionState.Open)
+            await conn.OpenAsync();
+
+        var result = await cmd.ExecuteNonQueryAsync();
+        return result >= 0;
     }
 }
