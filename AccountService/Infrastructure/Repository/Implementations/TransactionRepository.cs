@@ -1,20 +1,29 @@
 ﻿using AccountService.Features.Transaction;
 using AccountService.Infrastructure.Repository.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Infrastructure.Repository.Implementations;
 
 public class TransactionRepository : ITransactionRepository
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly AppDbContext _dbContext;
 
-    public Task<IEnumerable<Transaction>> GetByAccountIdAsync(Guid accountId)
+    public TransactionRepository(AppDbContext dbContext)
     {
-        return Task.FromResult(_transactions.Where(t => t.AccountId == accountId));
+        _dbContext = dbContext;
     }
 
-    public Task AddAsync(Transaction transaction)
+    public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(Guid accountId)
     {
-        _transactions.Add(transaction);
-        return Task.CompletedTask;
+        return await _dbContext.Transactions
+            .Where(t => t.AccountId == accountId)
+            .OrderByDescending(t => t.Date)
+            .ToListAsync();
+    }
+
+    public async Task AddAsync(Transaction transaction)
+    {
+        await _dbContext.Transactions.AddAsync(transaction);
+        await _dbContext.SaveChangesAsync();
     }
 }

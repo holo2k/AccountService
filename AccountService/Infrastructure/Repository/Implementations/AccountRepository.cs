@@ -2,57 +2,71 @@
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Infrastructure.Repository.Implementations;
 
 public class AccountRepository : IAccountRepository
 {
-    private readonly List<Account> _accounts = new();
+    private readonly AppDbContext _dbContext;
 
-    public Task<ICollection<Account>> GetByUserIdAsync(Guid ownerId)
+    public AccountRepository(AppDbContext dbContext)
     {
-        return Task.FromResult<ICollection<Account>>(_accounts.Where(x => x.OwnerId == ownerId).ToList());
+        _dbContext = dbContext;
     }
 
-    public Task<Account?> GetByIdAsync(Guid id)
+    public async Task<ICollection<Account>> GetByUserIdAsync(Guid ownerId)
     {
-        var account = _accounts.FirstOrDefault(a => a.Id == id);
-        return Task.FromResult(account);
+        return await _dbContext.Accounts
+            .Where(a => a.OwnerId == ownerId)
+            .ToListAsync();
     }
 
-    public Task AddAsync(Account account)
+    public async Task<Account?> GetByIdAsync(Guid id)
     {
-        _accounts.Add(account);
-        return Task.CompletedTask;
+        return await _dbContext.Accounts
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public Task<MbResult<Unit>> UpdateAsync(Account account)
+    public async Task AddAsync(Account account)
     {
-        var index = _accounts.FindIndex(a => a.Id == account.Id);
+        await _dbContext.Accounts.AddAsync(account);
+        await _dbContext.SaveChangesAsync();
+    }
 
-        if (index < 0)
-            return Task.FromResult(MbResult<Unit>.Fail(new MbError
+    public async Task<MbResult<Unit>> UpdateAsync(Account account)
+    {
+        var exists = await _dbContext.Accounts
+            .AnyAsync(a => a.Id == account.Id);
+
+        if (!exists)
+            return MbResult<Unit>.Fail(new MbError
             {
                 Code = "NotFound",
                 Message = $"Счёт с ID {account.Id} не найден"
-            }));
+            });
 
-        _accounts[index] = account;
-        return Task.FromResult(MbResult<Unit>.Success(Unit.Value));
+        _dbContext.Accounts.Update(account);
+        await _dbContext.SaveChangesAsync();
+
+        return MbResult<Unit>.Success(Unit.Value);
     }
 
-    public Task<MbResult<Unit>> DeleteAsync(Guid id)
+    public async Task<MbResult<Unit>> DeleteAsync(Guid id)
     {
-        var account = _accounts.FirstOrDefault(a => a.Id == id);
+        var account = await _dbContext.Accounts
+            .FirstOrDefaultAsync(a => a.Id == id);
 
         if (account is null)
-            return Task.FromResult(MbResult<Unit>.Fail(new MbError
+            return MbResult<Unit>.Fail(new MbError
             {
                 Code = "NotFound",
                 Message = $"Счёт с ID {id} не найден"
-            }));
+            });
 
-        _accounts.Remove(account);
-        return Task.FromResult(MbResult<Unit>.Success(Unit.Value));
+        _dbContext.Accounts.Remove(account);
+        await _dbContext.SaveChangesAsync();
+
+        return MbResult<Unit>.Success(Unit.Value);
     }
 }
