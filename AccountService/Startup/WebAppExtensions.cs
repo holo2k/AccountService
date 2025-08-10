@@ -1,7 +1,8 @@
-﻿using AccountService.Infrastructure;
+﻿using System.Text.Json;
+using AccountService.Infrastructure;
+using AccountService.Infrastructure.Repository;
 using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Diagnostics;
-using System.Text.Json;
 
 namespace AccountService.Startup;
 

@@ -1,9 +1,11 @@
-﻿using AccountService.Features.Account.CheckAccountOwnership;
-using AccountService.Features.Account.GetAccount;
+﻿using AccountService.Features.Account.GetAccount;
 using AccountService.PipelineBehaviors;
 using AccountService.UserService.Abstractions;
 using MediatR;
 
+namespace AccountService.Features.Account.CheckAccountOwnership;
+
+// ReSharper disable once UnusedMember.Global (Используется в MediatR)
 public class CheckAccountOwnershipHandler : IRequestHandler<CheckAccountOwnershipQuery, MbResult<bool>>
 {
     private readonly IMediator _mediator;

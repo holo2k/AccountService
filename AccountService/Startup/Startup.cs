@@ -10,7 +10,6 @@ using AccountService.UserService.Abstractions;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Startup;
 
