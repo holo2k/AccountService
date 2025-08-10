@@ -22,7 +22,8 @@ public class Account
     public virtual ICollection<Transaction.Transaction> Transactions { get; set; } =
         new List<Transaction.Transaction>();
 
-    [Timestamp]
+    [ConcurrencyCheck]
     [Column("xmin", TypeName = "xid")]
+    // ReSharper disable once UnusedMember.Global (Используется для оптимистичной блокировки)
     public uint Version { get; set; }
 }
