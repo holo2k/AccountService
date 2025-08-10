@@ -36,20 +36,20 @@ public class AccountRepository : IAccountRepository
 
     public async Task<MbResult<Unit>> UpdateAsync(Account account)
     {
-        var exists = await _dbContext.Accounts
-            .AnyAsync(a => a.Id == account.Id);
-
-        if (!exists)
+        try
+        {
+            _dbContext.Accounts.Update(account);
+            await _dbContext.SaveChangesAsync();
+            return MbResult<Unit>.Success(Unit.Value);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
             return MbResult<Unit>.Fail(new MbError
             {
-                Code = "NotFound",
-                Message = $"Счёт с ID {account.Id} не найден"
+                Code = "ConcurrencyConflict",
+                Message = "Данные счёта были изменены другим процессом"
             });
-
-        _dbContext.Accounts.Update(account);
-        await _dbContext.SaveChangesAsync();
-
-        return MbResult<Unit>.Success(Unit.Value);
+        }
     }
 
     public async Task<MbResult<Unit>> DeleteAsync(Guid id)

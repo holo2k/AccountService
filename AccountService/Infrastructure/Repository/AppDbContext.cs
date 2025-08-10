@@ -18,6 +18,11 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Account>()
+            .Property<uint>("Version")
+            .IsRowVersion()
+            .HasColumnName("xmin");
+
+        modelBuilder.Entity<Account>()
             .HasIndex(a => a.OwnerId)
             .HasMethod("hash");
 
