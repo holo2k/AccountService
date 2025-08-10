@@ -71,6 +71,7 @@ public static class MbResultExtensions
                 "NotFound" => controller.NotFound(result), //404
                 "ValidationFailure" => controller.UnprocessableEntity(result), //422
                 "InsufficientFunds" => controller.Conflict(result), //409
+                "TransferError" => controller.Conflict(result),
                 _ => controller.BadRequest(result) //400
             };
 
