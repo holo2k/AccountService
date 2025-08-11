@@ -2,21 +2,51 @@
 using AccountService.AutoMapper;
 using AccountService.CurrencyService.Abstractions;
 using AccountService.Filters;
+using AccountService.Infrastructure.Helpers;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
+using AccountService.Jobs;
 using AccountService.PipelineBehaviors;
+using AccountService.Startup.Auth;
 using AccountService.UserService.Abstractions;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Startup;
 
 public static class Startup
 {
+    private static readonly bool IsTest = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Test";
+
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient();
+
+        if (IsTest)
+        {
+            services.AddAuthentication("Test")
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+        }
+        else
+        {
+            var connection = configuration.GetConnectionString("DefaultConnection");
+            Console.WriteLine(connection);
+            DbContextInitializer.Initialize(services, connection ?? throw new ArgumentNullException(connection));
+
+            services.AddHangfire(config =>
+                config.UsePostgreSqlStorage(options => { options.UseNpgsqlConnection(connection); })
+            );
+
+            services.AddHangfireServer();
+
+
+            services.AddAuthentication(configuration);
+            services.AddSwagger(configuration);
+        }
 
         services.AddControllers(options => { options.Filters.Add<ModelValidationFilter>(); })
             .AddJsonOptions(options =>
@@ -24,8 +54,9 @@ public static class Startup
 
         services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 
-        services.AddSingleton<IAccountRepository, AccountRepository>();
-        services.AddSingleton<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<ISqlExecutor, SqlExecutor>();
         services.AddSingleton<IUserService, UserService.Implementations.UserService>();
         services.AddSingleton<ICurrencyService, CurrencyService.Implementations.CurrencyService>();
 
@@ -41,17 +72,13 @@ public static class Startup
 
         services.AddEndpointsApiExplorer();
 
-        services.AddAuthentication(configuration);
-        services.AddSwagger(configuration);
         services.AddCors();
     }
 
 
-    public static void Configure(WebApplication app)
+    public static async Task Configure(WebApplication app)
     {
         app.UseCors("AllowAll");
-
-        app.AddSwagger();
 
         app.AddExceptionHandler();
 
@@ -59,6 +86,24 @@ public static class Startup
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        if (!IsTest)
+        {
+            await app.MigrateDatabaseAsync();
+
+            var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+            recurringJobManager.AddOrUpdate<InterestAccrualJob>(
+                "AccrueInterestJob",
+                job => job.RunAsync(),
+                Cron.Daily(0, 0));
+
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
+            });
+
+            app.AddSwagger();
+        }
 
         app.MapControllers();
     }

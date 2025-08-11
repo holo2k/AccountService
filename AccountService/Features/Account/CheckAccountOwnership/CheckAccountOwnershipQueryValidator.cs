@@ -2,6 +2,7 @@
 
 namespace AccountService.Features.Account.CheckAccountOwnership;
 
+// ReSharper disable once UnusedMember.Global (Используется в MediatR)
 public class CheckAccountOwnershipQueryValidator : AbstractValidator<CheckAccountOwnershipQuery>
 {
     public CheckAccountOwnershipQueryValidator()

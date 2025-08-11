@@ -14,7 +14,7 @@ public class MbResult<T>
     public T? Result { get; set; }
 
     /// <summary>
-    ///     Информация об ошибке, если запрос завершился неуспешно.
+    ///     Информация об ошибке, если запрос завершился не успешно.
     /// </summary>
     public MbError? Error { get; set; }
 
@@ -71,6 +71,9 @@ public static class MbResultExtensions
                 "NotFound" => controller.NotFound(result), //404
                 "ValidationFailure" => controller.UnprocessableEntity(result), //422
                 "InsufficientFunds" => controller.Conflict(result), //409
+                "TransferError" => controller.Conflict(result), //409
+                "ConcurrencyConflict" => controller.Conflict(result), //409
+                "AccrueFailed" => controller.StatusCode(500, result), //500
                 _ => controller.BadRequest(result) //400
             };
 

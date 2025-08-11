@@ -1,4 +1,7 @@
-﻿namespace AccountService.Features.Account;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace AccountService.Features.Account;
 
 public class Account
 {
@@ -18,4 +21,9 @@ public class Account
     // ReSharper disable once UnusedMember.Global (Используется в auto mapper)
     public virtual ICollection<Transaction.Transaction> Transactions { get; set; } =
         new List<Transaction.Transaction>();
+
+    [ConcurrencyCheck]
+    [Column("xmin", TypeName = "xid")]
+    // ReSharper disable once UnusedMember.Global (Используется для оптимистичной блокировки)
+    public uint Version { get; set; }
 }

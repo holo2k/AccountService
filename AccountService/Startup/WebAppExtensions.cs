@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using AccountService.Infrastructure.Helpers;
+using AccountService.Infrastructure.Repository;
 using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -40,6 +42,8 @@ public static class WebAppExtensions
                 return;
             }
 
+            if (context.RequestAborted.IsCancellationRequested) return;
+
             await next();
         });
 
@@ -53,5 +57,12 @@ public static class WebAppExtensions
 
             c.OAuthScopes("openid", "profile", "email", "roles");
         });
+    }
+
+    public static async Task MigrateDatabaseAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        await using var appDbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await DbContextInitializer.Migrate(appDbContext);
     }
 }
