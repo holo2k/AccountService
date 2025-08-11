@@ -44,19 +44,18 @@ public class AccountRepository : IAccountRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<MbResult<Unit>> UpdateAsync(Account account)
+    public async Task<MbResult<Guid>> UpdateAsync(Account account)
     {
         try
         {
-            _dbContext.Accounts.Update(account);
             await _dbContext.SaveChangesAsync();
             await _dbContext.Entry(account).ReloadAsync();
-            return MbResult<Unit>.Success(Unit.Value);
+            return MbResult<Guid>.Success(account.Id);
         }
         catch (DbUpdateConcurrencyException ex)
         {
             var message = ex.Message;
-            return MbResult<Unit>.Fail(new MbError
+            return MbResult<Guid>.Fail(new MbError
             {
                 Code = "ConcurrencyConflict",
                 Message = message

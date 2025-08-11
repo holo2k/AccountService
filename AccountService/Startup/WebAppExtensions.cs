@@ -42,6 +42,8 @@ public static class WebAppExtensions
                 return;
             }
 
+            if (context.RequestAborted.IsCancellationRequested) return;
+
             await next();
         });
 

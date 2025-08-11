@@ -19,10 +19,15 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
 
     public async Task<MbResult<Guid>> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
     {
-        var account = _mapper.Map<Account>(request.Account);
+        var existingAccount = await _repository.GetByIdAsync(request.Account.Id);
 
-        var result = await _repository.UpdateAsync(account);
+        if (existingAccount == null)
+            return MbResult<Guid>.Fail(new MbError { Code = "NotFound", Message = "Account not found" });
 
-        return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(account.Id);
+        _mapper.Map(request.Account, existingAccount);
+
+        var result = await _repository.UpdateAsync(existingAccount);
+
+        return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(existingAccount.Id);
     }
 }

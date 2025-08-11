@@ -37,8 +37,10 @@ public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStateme
 
         var transactions = await _transactionRepository.GetByAccountIdAsync(request.AccountId);
 
+        var dateUntil = request.To.TimeOfDay == TimeSpan.Zero ? request.To.Date.AddDays(1).AddTicks(-1) : request.To;
+
         var filteredTransactions = transactions
-            .Where(t => t.Date >= request.From && t.Date <= request.To)
+            .Where(t => t.Date >= request.From && t.Date <= dateUntil)
             .OrderBy(t => t.Date)
             .ToList();
 
