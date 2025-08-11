@@ -35,7 +35,7 @@ public class AccountsController : ControllerBase
     /// <returns>Список счетов пользователя</returns>
     /// <response code="200">Счета успешно получены</response>
     /// <response code="400">Некорректный запрос</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{userId}")]
     [ProducesResponseType(typeof(MbResult<ICollection<AccountDto>>), StatusCodes.Status200OK)]
@@ -55,7 +55,7 @@ public class AccountsController : ControllerBase
     /// <param name="accountId">ID счёта.</param>
     /// <response code="200">Счёт принадлежит владельцу</response>
     /// <response code="400">Ошибка во время запроса</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Счёт не найден</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{accountId}/owner/{ownerId}/exists")]
@@ -78,7 +78,7 @@ public class AccountsController : ControllerBase
     /// <returns>Статус 200 OK, если счёт принадлежит владельцу; 404 Not Found — если нет.</returns>
     /// <response code="200">Баланс успешно получен.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{ownerId}/balance")]
@@ -103,7 +103,7 @@ public class AccountsController : ControllerBase
     /// <returns>Список транзакций и информация о счёте за указанный период.</returns>
     /// <response code="200">Выписка успешно получена.</response>
     /// <response code="400">Некорректные параметры запроса.</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Счёт или владелец не найдены.</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpGet("{accountId}/statement")]
@@ -136,7 +136,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID созданного счёта</returns>
     /// <response code="201">Счёт успешно создан</response>
     /// <response code="400">Ошибка в команде</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpPost]
     [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status201Created)]
@@ -151,7 +151,7 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    ///     Закрыть вклад и начислить проценты.
+    ///     Закрыть вклад и добавить проценты.
     /// </summary>
     /// <param name="accountId">ID счета-вклада</param>
     /// <returns>Результат операции</returns>
@@ -184,7 +184,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID обновленного счёта</returns>
     /// <response code="200">Счёт успешно обновлён</response>
     /// <response code="400">Ошибка в команде</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Не найден счёт</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpPut("{accountId}")]
@@ -207,7 +207,7 @@ public class AccountsController : ControllerBase
     /// <returns>ID удалённого счёта</returns>
     /// <response code="200">Счёт успешно удалён</response>
     /// <response code="400">Ошибка во время запроса</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Не найден счёт</response>
     /// <response code="422">Нарушение правил валидации</response>
     [HttpDelete("{accountId}")]

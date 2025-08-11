@@ -55,7 +55,7 @@ public class CloseDepositCommandHandlerTests : UnitTestBase
             .ReturnsAsync(account);
 
         AccountRepositoryMock.Setup(r => r.UpdateAsync(account))
-            .ReturnsAsync(MbResult<MediatR.Unit>.Success(MediatR.Unit.Value));
+            .ReturnsAsync(MbResult<Guid>.Success(account.Id));
 
         SqlExecutorMock.Setup(s => s.ExecuteScalarIntAsync(It.IsAny<string>(), It.IsAny<object[]>()))
             .ReturnsAsync(1);

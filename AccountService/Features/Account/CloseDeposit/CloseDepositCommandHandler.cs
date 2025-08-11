@@ -55,7 +55,7 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
                 "SELECT accrue_interest(@p0)", request.AccountId);
 
             if (rowsAffected <= 0)
-                throw new Exception("Не удалось начислить проценты");
+                throw new Exception("Не удалось добавить проценты");
 
             var entry = _dbContext.Entry(account);
 

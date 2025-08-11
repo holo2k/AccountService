@@ -34,7 +34,7 @@ public class TransactionController : ControllerBase
     /// <returns>Идентификатор созданной транзакции</returns>
     /// <response code="201">Транзакция успешно добавлена</response>
     /// <response code="400">Ошибка в команде</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Счёт не найден</response>
     /// <response code="409">Недостаточно средств</response>
     /// <response code="422">Ошибка валидации</response>
@@ -59,7 +59,7 @@ public class TransactionController : ControllerBase
     /// <returns>Идентификатор выполненного перевода</returns>
     /// <response code="200">Перевод успешно выполнен</response>
     /// <response code="400">Ошибка в команде</response>
-    /// <response code="401">Неавторизованный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
     /// <response code="404">Один из счетов не найден</response>
     /// <response code="409">Недостаточно средств</response>
     /// <response code="422">Ошибка валидации</response>

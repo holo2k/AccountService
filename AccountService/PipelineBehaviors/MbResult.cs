@@ -14,7 +14,7 @@ public class MbResult<T>
     public T? Result { get; set; }
 
     /// <summary>
-    ///     Информация об ошибке, если запрос завершился неуспешно.
+    ///     Информация об ошибке, если запрос завершился не успешно.
     /// </summary>
     public MbError? Error { get; set; }
 

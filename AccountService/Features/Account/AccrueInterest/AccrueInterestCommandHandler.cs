@@ -30,7 +30,7 @@ public class AccrueInterestCommandHandler : IRequestHandler<AccrueInterestComman
                 return MbResult<Unit>.Fail(new MbError
                 {
                     Code = "AccrueFailed",
-                    Message = "Не удалось начислить проценты"
+                    Message = "Не удалось добавить проценты"
                 });
             }
 

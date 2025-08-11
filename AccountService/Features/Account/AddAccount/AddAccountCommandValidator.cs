@@ -39,6 +39,6 @@ public class AddAccountCommandValidator : AbstractValidator<AddAccountCommand>
 
         RuleFor(x => x.Account.Currency)
             .Must(currencyService.IsSupported)
-            .WithMessage("Неподдерживаемая валюта");
+            .WithMessage("Не поддерживаемая валюта");
     }
 }

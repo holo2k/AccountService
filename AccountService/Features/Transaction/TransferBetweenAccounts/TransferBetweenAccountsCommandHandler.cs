@@ -114,7 +114,7 @@ public class TransferBetweenAccountsCommandHandler
 
             if (fromAccount.Balance != fromExpected || toAccount.Balance != toExpected)
                 throw new InvalidOperationException(
-                    "Несоответствие балансов после перевода. " +
+                    "Несоответствие баланса после перевода. " +
                     $"Ожидалось: From={fromExpected}, To={toExpected}. " +
                     $"Фактически: From={fromAccount.Balance}, To={toAccount.Balance}");
 
