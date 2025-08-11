@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using AccountService.Infrastructure;
+using AccountService.Infrastructure.Helpers;
 using AccountService.Infrastructure.Repository;
 using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Diagnostics;

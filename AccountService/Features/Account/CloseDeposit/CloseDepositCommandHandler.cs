@@ -1,8 +1,8 @@
-﻿using AccountService.Infrastructure.Repository;
+﻿using AccountService.Infrastructure.Helpers;
+using AccountService.Infrastructure.Repository;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace AccountService.Features.Account.CloseDeposit;
 
@@ -11,11 +11,14 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
 {
     private readonly IAccountRepository _accountRepository;
     private readonly AppDbContext _dbContext;
+    private readonly ISqlExecutor _sqlExecutor;
 
-    public CloseDepositCommandHandler(IAccountRepository accountRepository, AppDbContext dbContext)
+    public CloseDepositCommandHandler(IAccountRepository accountRepository, AppDbContext dbContext,
+        ISqlExecutor sqlExecutor)
     {
         _accountRepository = accountRepository;
         _dbContext = dbContext;
+        _sqlExecutor = sqlExecutor;
     }
 
     public async Task<MbResult<ClosedDepositDto>> Handle(CloseDepositCommand request,
@@ -48,30 +51,26 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
 
         try
         {
-            await _dbContext.Database.ExecuteSqlRawAsync(
-                "CALL accrue_interest({0})",
-                new object[] { request.AccountId }, cancellationToken);
+            var rowsAffected = await _sqlExecutor.ExecuteScalarIntAsync(
+                "SELECT accrue_interest(@p0)", request.AccountId);
 
-            await _dbContext.Entry(account).ReloadAsync(cancellationToken);
+            if (rowsAffected <= 0)
+                throw new Exception("Не удалось начислить проценты");
+
+            var entry = _dbContext.Entry(account);
+
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract (Проверка необходима для тестов)
+            if (entry is not null)
+                await entry.ReloadAsync(cancellationToken);
 
             if (account.CloseDate != null)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                return MbResult<ClosedDepositDto>.Fail(new MbError
-                {
-                    Code = "AlreadyClosed",
-                    Message = "Вклад уже закрыт"
-                });
-            }
+                throw new Exception("Вклад уже закрыт");
 
             account.CloseDate = DateTime.UtcNow;
 
             var updateResult = await _accountRepository.UpdateAsync(account);
             if (!updateResult.IsSuccess)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                return MbResult<ClosedDepositDto>.Fail(updateResult.Error!);
-            }
+                throw new Exception(updateResult.Error!.Message);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

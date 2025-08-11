@@ -25,11 +25,14 @@ public class AccrueInterestCommandHandler : IRequestHandler<AccrueInterestComman
         {
             var success = await _accountRepository.AccrueInterestAsync(request.AccountId);
             if (!success)
+            {
+                await transaction.RollbackAsync(cancellationToken);
                 return MbResult<Unit>.Fail(new MbError
                 {
                     Code = "AccrueFailed",
                     Message = "Не удалось начислить проценты"
                 });
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
