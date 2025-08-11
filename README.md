@@ -152,10 +152,10 @@ Bearer <ваш_access_token>
 | `4650ec28-5afc-4bb2-8f47-90550012646e` | Пользователь #3 |
 
 Подключение к базе данных API:
-localhost:5433
-db - account_db
-user - postgres
-password - postgres
+* localhost:5433
+* db - account_db
+* user - postgres
+* password - postgres
 
 Для проверки использования индексов можно использовать команду PostgreSQL:
 ```
