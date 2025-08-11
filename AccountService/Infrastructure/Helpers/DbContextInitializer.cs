@@ -1,7 +1,7 @@
 ﻿using AccountService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace AccountService.Infrastructure;
+namespace AccountService.Infrastructure.Helpers;
 
 public static class DbContextInitializer
 {

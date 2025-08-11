@@ -1,5 +1,5 @@
-﻿using System.Data;
-using AccountService.Features.Account;
+﻿using AccountService.Features.Account;
+using AccountService.Infrastructure.Helpers;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
 using MediatR;
@@ -10,10 +10,12 @@ namespace AccountService.Infrastructure.Repository.Implementations;
 public class AccountRepository : IAccountRepository
 {
     private readonly AppDbContext _dbContext;
+    private readonly ISqlExecutor _sqlExecutor;
 
-    public AccountRepository(AppDbContext dbContext)
+    public AccountRepository(AppDbContext dbContext, ISqlExecutor sqlExecutor)
     {
         _dbContext = dbContext;
+        _sqlExecutor = sqlExecutor;
     }
 
     public async Task<ICollection<Account>> GetByUserIdAsync(Guid ownerId)
@@ -57,7 +59,7 @@ public class AccountRepository : IAccountRepository
             return MbResult<Unit>.Fail(new MbError
             {
                 Code = "ConcurrencyConflict",
-                Message = "Данные счёта были изменены другим процессом"
+                Message = message
             });
         }
     }
@@ -82,18 +84,8 @@ public class AccountRepository : IAccountRepository
 
     public async Task<bool> AccrueInterestAsync(Guid accountId)
     {
-        var conn = _dbContext.Database.GetDbConnection();
-        await using var cmd = conn.CreateCommand();
-        cmd.CommandText = "CALL accrue_interest(@accountId)";
-        var param = cmd.CreateParameter();
-        param.ParameterName = "accountId";
-        param.Value = accountId;
-        cmd.Parameters.Add(param);
-
-        if (conn.State != ConnectionState.Open)
-            await conn.OpenAsync();
-
-        var result = await cmd.ExecuteNonQueryAsync();
-        return result >= 0;
+        var rowsAffected = await _sqlExecutor.ExecuteScalarIntAsync(
+            "SELECT accrue_interest(@p0)", accountId);
+        return rowsAffected > 0;
     }
 }

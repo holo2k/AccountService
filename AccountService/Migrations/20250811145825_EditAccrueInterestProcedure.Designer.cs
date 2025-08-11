@@ -3,6 +3,7 @@ using System;
 using AccountService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811145825_EditAccrueInterestProcedure")]
+    partial class EditAccrueInterestProcedure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +32,7 @@ namespace AccountService.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("CloseDate")
                         .HasColumnType("timestamp with time zone");
@@ -45,7 +48,7 @@ namespace AccountService.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<decimal?>("PercentageRate")
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");

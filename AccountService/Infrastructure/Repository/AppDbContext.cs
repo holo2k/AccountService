@@ -33,6 +33,12 @@ public class AppDbContext : DbContext
 
             entity.Property(e => e.OpenDate)
                 .HasColumnType("timestamp with time zone");
+
+            entity.Property(e => e.Balance)
+                .HasColumnType("numeric(18,2)");
+
+            entity.Property(e => e.PercentageRate)
+                .HasColumnType("numeric(5,2)");
         });
 
         modelBuilder.Entity<Transaction>(entity =>
