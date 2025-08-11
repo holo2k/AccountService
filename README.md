@@ -6,7 +6,7 @@
 
 ---
 
-## Возможности API
+## Информация об API
 
 - Создание, обновление, удаление счетов
 - Получение списка счетов пользователя
@@ -15,6 +15,12 @@
 - Добавление транзакций (списание, пополнение)
 - Перевод между счетами
 - Получение JWT токена
+- Начисление процентов по вкладам через хранимую процедуру accrue_interest
+- Ежедневный Cron-Job HangFire для автоматического начисления процентов
+- Закрытие вклада с последующим начислением процентов
+- Оптимистичная блокировка через concurrency-token (xmin)
+- Покрытие модульными и интеграционными тестами
+- Использование составного индекса
 ---
 
 ## Технологии
@@ -26,6 +32,8 @@
 - Swagger (OpenAPI)
 - Docker, Docker Compose
 - Keycloak
+- HangFire
+- xUnit, Testcontainers, Moq
 
 ---
 
@@ -51,7 +59,7 @@ docker compose up -d --build
 ```
 
 3. После запуска сервис будет доступен по адресу:
-   [http://localhost:5000/swagger](http://localhost:5000/swagger)
+   [http://localhost:80/swagger](http://localhost:80/swagger)
 
 ---
 
@@ -72,8 +80,6 @@ GET /auth/token
 * client\_id: `account-api`
 
 В ответе возвращается JSON с `access_token` и другими параметрами.
-
----
 
 ### Регистрация токена в Swagger
 
@@ -115,6 +121,14 @@ Bearer <ваш_access_token>
 
 ---
 
+## Hangfire
+
+Для автоматического ежедневного начисления процентов по вкладам используется Hangfire.
+
+* Проверить работу можно путём создания счёта с типом Deposit и выполнением job'ы по адресу:
+[http://localhost/hangfire/recurring](http://localhost/hangfire/recurring)
+
+---
 ## Примечание
 
 * Валюта указывается в формате ISO 4217 (В качестве заглушки есть 3 валюты - `RUB`, `USD`, `EUR`)
@@ -137,6 +151,23 @@ Bearer <ваш_access_token>
 | `43007588-4211-492f-ace0-f5b10aefe26b` | Пользователь #2 |
 | `4650ec28-5afc-4bb2-8f47-90550012646e` | Пользователь #3 |
 
+Подключение к базе данных API:
+localhost:5433
+db - account_db
+user - postgres
+password - postgres
+
+Для проверки использования индексов можно использовать команду PostgreSQL:
+```
+EXPLAIN ANALYZE
+SELECT *
+FROM public."Transactions"
+WHERE "AccountId" = '{account_id}'
+  AND "Date" between '2025-08-01' AND '2025-08-31'
+ORDER BY "Date";
+```
+
+---
 
 ## Примеры curl-запросов
 
@@ -250,51 +281,43 @@ curl -X POST "http://localhost:5000/transactions/transfer" \
 
 ```
 AccountService
-│   AccountService.csproj
-│   Program.cs
-│   appsettings.json
-│
-├───AutoMapper
-│       MappingProfile.cs
-│
-├───CurrencyService          // заглушка сервиса валют
-│   ├───Abstractions
-│   │       ICurrencyService.cs
-│   └───Implementations
-│           CurrencyService.cs
-│
-├───Features
-│   ├───Account
-│   │   ├───AddAccount
-│   │   ├───DeleteAccount
-│   │   ├───GetAccount
-│   │   ├───GetAccountBalance
-│   │   ├───GetAccountsByOwnerId
-│   │   ├───GetAccountStatement
-│   │   └───UpdateAccount
-│   │       ...
-│   └───Transaction
-│       ├───AddTransaction
-│       └───TransferBetweenAccounts
-│           ...
-│
-├───Infrastructure           // заглушка хранения счетов и транзакций
-│   └───Repository
-│       ├───Abstractions
-│       └───Implementations
-│
-├───PipelineBehaviors
-│       MbResult.cs
-│       ValidationBehavior.cs
-│
-├───Startup
-│       Startup.cs
-│       ServiceCollectionExtensions.cs
-│
-├───UserService              // заглушка сервиса верификации клиентов
-│   ├───Abstractions
-│   └───Implementations
-│       ...
+├── AutoMapper
+│   └── MappingProfile.cs
+├── CurrencyService (заглушка сервиса валют)
+│   ├── Abstractions
+│   └── Implementations
+├── Features
+│   ├── Account
+│   │   ├── AccrueInterest
+│   │   ├── AddAccount
+│   │   ├── CheckAccountOwnership
+│   │   ├── CloseDeposit
+│   │   ├── DeleteAccount
+│   │   ├── GetAccount
+│   │   ├── GetAccountBalance
+│   │   ├── GetAccountsByOwnerId
+│   │   ├── GetAccountStatement
+│   │   └── UpdateAccount
+│   └── Transaction
+│       ├── AddTransaction
+│       └── TransferBetweenAccounts
+├── Filters
+├── Infrastructure
+│   ├── Helpers
+│   └── Repository
+│       ├── Abstractions
+│       └── Implementations
+├── Jobs
+├── PipelineBehaviors
+├── Startup
+│   └── Auth
+├── UserService (заглушка сервиса пользователей)
+│   ├── Abstractions
+│   ├── Implementations
+│   ├── AuthController.cs
+│   └── User.cs
+├── Program.cs
+└── AccountService.csproj
 
 ```
 ## Контакты
