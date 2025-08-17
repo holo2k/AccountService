@@ -1,13 +1,18 @@
 ﻿using System.Text.Json.Serialization;
 using AccountService.AutoMapper;
 using AccountService.CurrencyService.Abstractions;
+using AccountService.Features.Account.Consumers;
+using AccountService.Features.Outbox.Dispatcher;
+using AccountService.Features.Outbox.Service;
 using AccountService.Filters;
 using AccountService.Infrastructure.Helpers;
+using AccountService.Infrastructure.Messaging;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.Infrastructure.Repository.Implementations;
 using AccountService.Jobs;
 using AccountService.PipelineBehaviors;
 using AccountService.Startup.Auth;
+using AccountService.Startup.Middleware;
 using AccountService.UserService.Abstractions;
 using FluentValidation;
 using Hangfire;
@@ -26,6 +31,8 @@ public static class Startup
     {
         services.AddHttpClient();
 
+        services.AddLogger();
+
         if (IsTest)
         {
             services.AddAuthentication("Test")
@@ -34,18 +41,19 @@ public static class Startup
         else
         {
             var connection = configuration.GetConnectionString("DefaultConnection");
-            Console.WriteLine(connection);
             DbContextInitializer.Initialize(services, connection ?? throw new ArgumentNullException(connection));
 
             services.AddHangfire(config =>
                 config.UsePostgreSqlStorage(options => { options.UseNpgsqlConnection(connection); })
             );
-
             services.AddHangfireServer();
-
 
             services.AddAuthentication(configuration);
             services.AddSwagger(configuration);
+            services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+            services.AddHostedService<OutboxDispatcher>();
+            services.AddHostedService<AntifraudConsumer>();
+            services.AddHostedService<AuditConsumer>();
         }
 
         services.AddControllers(options => { options.Filters.Add<ModelValidationFilter>(); })
@@ -57,6 +65,9 @@ public static class Startup
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ISqlExecutor, SqlExecutor>();
+
+        services.AddScoped<IOutboxService, OutboxService>();
+
         services.AddSingleton<IUserService, UserService.Implementations.UserService>();
         services.AddSingleton<ICurrencyService, CurrencyService.Implementations.CurrencyService>();
 
@@ -78,6 +89,8 @@ public static class Startup
 
     public static async Task Configure(WebApplication app)
     {
+        app.UseMiddleware<RequestLoggingMiddleware>();
+
         app.UseCors("AllowAll");
 
         app.AddExceptionHandler();
@@ -89,6 +102,9 @@ public static class Startup
 
         if (!IsTest)
         {
+            if (app.Services.GetRequiredService<IRabbitMqPublisher>() is RabbitMqPublisher publisher)
+                await publisher.InitializeAsync();
+
             await app.MigrateDatabaseAsync();
 
             var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
