@@ -58,4 +58,10 @@ public class AccountDto
     /// </summary>
     // ReSharper disable once UnusedMember.Global (Используется в auto mapper)
     public DateTime? CloseDate { get; set; }
+
+    /// <summary>
+    ///     Флаг заморозки счёта.
+    /// </summary>
+    // ReSharper disable once UnusedMember.Global (Используется в auto mapper)
+    public bool IsFrozen { get; set; }
 }

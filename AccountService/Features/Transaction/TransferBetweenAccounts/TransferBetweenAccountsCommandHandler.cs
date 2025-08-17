@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using AccountService.CurrencyService.Abstractions;
+using AccountService.Features.Outbox.Service;
 using AccountService.Infrastructure.Repository;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
@@ -16,18 +17,21 @@ public class TransferBetweenAccountsCommandHandler
     private readonly IAccountRepository _accountRepository;
     private readonly ICurrencyService _currencyService;
     private readonly AppDbContext _dbContext;
+    private readonly IOutboxService _outboxService;
     private readonly ITransactionRepository _transactionRepository;
 
     public TransferBetweenAccountsCommandHandler(
         IAccountRepository accountRepository,
         ITransactionRepository transactionRepository,
         ICurrencyService currencyService,
+        IOutboxService outboxService,
         AppDbContext dbContext)
     {
         _accountRepository = accountRepository;
         _transactionRepository = transactionRepository;
         _currencyService = currencyService;
         _dbContext = dbContext;
+        _outboxService = outboxService;
     }
 
     public async Task<MbResult<Guid>> Handle(
@@ -52,6 +56,10 @@ public class TransferBetweenAccountsCommandHandler
             if (fromAccount is null)
                 return FailAndRollback(transaction, "NotFound",
                     $"Счёт отправителя с ID {payload.FromAccountId} не найден");
+
+            if (fromAccount.IsFrozen)
+                return FailAndRollback(transaction, "ClientBlocked",
+                    $"Счёт с ID {fromAccount.Id} заморожен и не может осуществлять дебетовые операции");
 
             var toAccount = await _accountRepository.GetByIdAsync(payload.ToAccountId);
             if (toAccount is null)
@@ -80,6 +88,8 @@ public class TransferBetweenAccountsCommandHandler
             if (!updateToResult.IsSuccess)
                 return FailAndRollback(transaction, updateToResult.Error!.Code, updateToResult.Error.Message);
 
+            var correlationId = Guid.CreateVersion7();
+
             var debitTransaction = new Transaction
             {
                 Id = Guid.CreateVersion7(),
@@ -104,8 +114,13 @@ public class TransferBetweenAccountsCommandHandler
                 Date = DateTime.UtcNow
             };
 
+
             await _transactionRepository.AddAsync(debitTransaction);
             await _transactionRepository.AddAsync(creditTransaction);
+
+            await _outboxService.AddTransactionEventAsync(debitTransaction, correlationId);
+            await _outboxService.AddTransactionEventAsync(creditTransaction, correlationId);
+            await _outboxService.AddTransferCompletedEventAsync(payload, correlationId);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
