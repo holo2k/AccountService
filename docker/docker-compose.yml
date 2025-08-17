@@ -10,7 +10,7 @@ services:
         dockerfile: Dockerfile
     depends_on:
       - keycloak
-      - rabbitmq 
+      - rabbit-mq 
     ports:
       - "80:80"
     environment:

@@ -74,7 +74,7 @@
       "vhost": "/",
       "destination": "account.notifications",
       "destination_type": "queue",
-      "routing_key": "money.*",
+      "routing_key": "money.#",
       "arguments": {}
     },
     {
