@@ -1,0 +1,247 @@
+[2025-08-16 17:23:38.758 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 17:23:40.373 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 17:23:40.373 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 17:23:57.444 +00:00 INF] Published message to account.events / account.opened Size=399 Correlation=0198b3e8-d428-715a-99f7-0bb93ac3910c {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 17:23:57.454 +00:00 INF] Event published: "0198b3e8-d428-715a-99f7-0bb93ac3910c", Type: AccountOpened, Correlation: "0198b3e8-d428-715a-99f7-0bb93ac3910c", Latency: 8ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 17:23:57.503 +00:00 INF] Processed audit message "0198b3e8-d428-715a-99f7-0bb93ac3910c" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 17:41:16.155 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 17:41:17.870 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 17:41:17.870 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 18:26:08.816 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 18:26:11.232 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 18:26:11.232 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 18:39:09.594 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 18:39:11.421 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 18:39:11.421 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 18:51:10.060 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 18:51:11.827 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 18:51:11.827 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 18:56:46.694 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 18:56:48.305 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 18:56:48.305 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 18:57:00.367 +00:00 INF] Published message to account.events / client.blocked Size=315 Correlation=0198b43e-045e-79d8-a782-1500e35a55a1 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 18:57:00.382 +00:00 INF] Event published: "0198b43e-045e-79d8-a782-1500e35a55a1", Type: ClientBlocked, Correlation: "0198b43e-045e-79d8-a782-1500e35a55a1", Latency: 13ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 18:57:00.418 +00:00 WRN] Saved dead letter id="0198b43e-045e-79d8-a782-1500e35a55a1" error=Missing required field: type {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 18:57:00.479 +00:00 INF] Processed audit message "0198b43e-045e-79d8-a782-1500e35a55a1" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:03:04.140 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:03:05.797 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:03:05.797 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:03:13.845 +00:00 INF] Published message to account.events / client.blocked Size=315 Correlation=0198b443-b5e6-7a9f-8fd9-e814c733bb40 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:03:13.857 +00:00 INF] Event published: "0198b443-b5e6-7a9f-8fd9-e814c733bb40", Type: ClientBlocked, Correlation: "0198b443-b5e6-7a9f-8fd9-e814c733bb40", Latency: 8ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:03:13.873 +00:00 WRN] Saved dead letter id="0198b443-b5e6-7a9f-8fd9-e814c733bb40" error=Missing required field: type {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:03:13.909 +00:00 INF] Processed audit message "0198b443-b5e6-7a9f-8fd9-e814c733bb40" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:04:39.700 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:04:41.338 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:04:41.338 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:04:46.379 +00:00 INF] Published message to account.events / client.blocked Size=315 Correlation=0198b445-1ef1-7a82-9e66-5ec78d3b1270 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:04:46.391 +00:00 INF] Event published: "0198b445-1ef1-7a82-9e66-5ec78d3b1270", Type: ClientBlocked, Correlation: "0198b445-1ef1-7a82-9e66-5ec78d3b1270", Latency: 8ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:04:46.446 +00:00 INF] Processed audit message "0198b445-1ef1-7a82-9e66-5ec78d3b1270" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:04:46.447 +00:00 WRN] Saved dead letter id="0198b445-1ef1-7a82-9e66-5ec78d3b1270" error=Event type is null or empty {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:05:30.468 +00:00 INF] Published message to account.events / client.blocked Size=315 Correlation=0198b445-cc5e-7165-a5bc-cb341f6f66b9 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:08:10.904 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:08:12.535 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:08:12.535 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:08:16.792 +00:00 WRN] Saved dead letter id="0198b445-cc5e-7165-a5bc-cb341f6f66b9" error=Event type is null or empty {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:08:16.792 +00:00 INF] Processed audit message "0198b445-cc5e-7165-a5bc-cb341f6f66b9" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:08:20.668 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b448-6591-78d3-9cb8-15e56217b0c3 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:08:20.671 +00:00 DBG] Received message: "0198b448-6591-78d3-9cb8-15e56217b0c3", Type: ClientBlocked, Correlation: 0198b448-6591-78d3-9cb8-15e56217b0c3 {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:08:20.675 +00:00 INF] Processed audit message "0198b448-6591-78d3-9cb8-15e56217b0c3" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:08:20.678 +00:00 INF] Event published: "0198b448-6591-78d3-9cb8-15e56217b0c3", Type: ClientBlocked, Correlation: "0198b448-6591-78d3-9cb8-15e56217b0c3", Latency: 8ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":12}
+[2025-08-16 19:08:20.801 +00:00 ERR] Error processing antifraud message id="0198b448-6591-78d3-9cb8-15e56217b0c3" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "PK_inbox_consumed"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "PK_inbox_consumed"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: inbox_consumed
+    ConstraintName: PK_inbox_consumed
+    File: nbtinsert.c
+    Line: 664
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 163
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 170
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 175
+[2025-08-16 19:08:20.822 +00:00 WRN] Saved dead letter id="0198b448-6591-78d3-9cb8-15e56217b0c3" error=An error occurred while saving the entity changes. See the inner exception for details. {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:28:32.038 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:28:34.464 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:28:34.464 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:29:00.543 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b45b-4e0f-7f84-a262-7e56241e927f {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:29:00.561 +00:00 DBG] Received message: "0198b45b-4e0f-7f84-a262-7e56241e927f", Type: ClientBlocked, Correlation: 0198b45b-4e0f-7f84-a262-7e56241e927f {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:29:00.563 +00:00 INF] Event published: "0198b45b-4e0f-7f84-a262-7e56241e927f", Type: ClientBlocked, Correlation: "0198b45b-4e0f-7f84-a262-7e56241e927f", Latency: 11ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:29:00.645 +00:00 INF] Processed audit message "0198b45b-4e0f-7f84-a262-7e56241e927f" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:29:00.868 +00:00 ERR] Error processing antifraud message id="0198b45b-4e0f-7f84-a262-7e56241e927f" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":45}
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "PK_inbox_consumed"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "PK_inbox_consumed"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: inbox_consumed
+    ConstraintName: PK_inbox_consumed
+    File: nbtinsert.c
+    Line: 664
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 163
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 170
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 175
+[2025-08-16 19:29:00.900 +00:00 WRN] Saved dead letter id="0198b45b-4e0f-7f84-a262-7e56241e927f" error=An error occurred while saving the entity changes. See the inner exception for details. {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":45}
+[2025-08-16 19:34:38.987 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:34:40.568 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:34:40.568 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:34:51.626 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b460-ac39-7328-9513-02e352bef9af {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:34:51.636 +00:00 DBG] Received message: "0198b460-ac39-7328-9513-02e352bef9af", Type: ClientBlocked, Correlation: 0198b460-ac39-7328-9513-02e352bef9af {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:34:51.636 +00:00 INF] Event published: "0198b460-ac39-7328-9513-02e352bef9af", Type: ClientBlocked, Correlation: "0198b460-ac39-7328-9513-02e352bef9af", Latency: 9ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:34:51.682 +00:00 INF] Processed audit message "0198b460-ac39-7328-9513-02e352bef9af" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:34:51.769 +00:00 WRN] Duplicate key violation: "0198b460-ac39-7328-9513-02e352bef9af" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:36:26.879 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b462-1e47-7434-9346-06d6198bef6c {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:36:26.880 +00:00 DBG] Received message: "0198b462-1e47-7434-9346-06d6198bef6c", Type: ClientBlocked, Correlation: 0198b462-1e47-7434-9346-06d6198bef6c {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:36:26.889 +00:00 INF] Event published: "0198b462-1e47-7434-9346-06d6198bef6c", Type: ClientBlocked, Correlation: "0198b462-1e47-7434-9346-06d6198bef6c", Latency: 7ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:36:26.890 +00:00 INF] Processed audit message "0198b462-1e47-7434-9346-06d6198bef6c" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:36:26.934 +00:00 WRN] Duplicate key violation: "0198b462-1e47-7434-9346-06d6198bef6c" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:38:01.580 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:38:03.180 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:38:03.180 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:38:38.319 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b464-204b-762d-be33-6d0709dab2f4 {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:38:38.336 +00:00 DBG] Received message: "0198b464-204b-762d-be33-6d0709dab2f4", Type: ClientBlocked, Correlation: 0198b464-204b-762d-be33-6d0709dab2f4 {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:38:38.339 +00:00 INF] Event published: "0198b464-204b-762d-be33-6d0709dab2f4", Type: ClientBlocked, Correlation: "0198b464-204b-762d-be33-6d0709dab2f4", Latency: 15ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:38:38.399 +00:00 INF] Processed audit message "0198b464-204b-762d-be33-6d0709dab2f4" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:38:38.582 +00:00 ERR] Error processing antifraud message id="0198b464-204b-762d-be33-6d0709dab2f4" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "PK_inbox_consumed"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "PK_inbox_consumed"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: inbox_consumed
+    ConstraintName: PK_inbox_consumed
+    File: nbtinsert.c
+    Line: 664
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 163
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 170
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 175
+[2025-08-16 19:38:38.610 +00:00 WRN] Saved dead letter id="0198b464-204b-762d-be33-6d0709dab2f4" error=An error occurred while saving the entity changes. See the inner exception for details. {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:43:41.860 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":4}
+[2025-08-16 19:43:43.495 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:43:43.495 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 19:45:11.625 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":10}
+[2025-08-16 19:45:13.214 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:45:13.214 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":13}
+[2025-08-16 19:45:38.296 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b46a-8828-70f7-9728-b185b19e251c {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:45:38.312 +00:00 INF] Event published: "0198b46a-8828-70f7-9728-b185b19e251c", Type: ClientBlocked, Correlation: "0198b46a-8828-70f7-9728-b185b19e251c", Latency: 8ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 19:45:38.314 +00:00 DBG] Received message: "0198b46a-8828-70f7-9728-b185b19e251c", Type: ClientBlocked, Correlation: 0198b46a-8828-70f7-9728-b185b19e251c {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 19:45:38.347 +00:00 INF] Processed audit message "0198b46a-8828-70f7-9728-b185b19e251c" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":45}
+[2025-08-16 19:45:38.540 +00:00 ERR] Error processing antifraud message id="0198b46a-8828-70f7-9728-b185b19e251c" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":45}
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "PK_inbox_consumed"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "PK_inbox_consumed"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: inbox_consumed
+    ConstraintName: PK_inbox_consumed
+    File: nbtinsert.c
+    Line: 664
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal.NpgsqlModificationCommandBatch.Consume(RelationalDataReader reader, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 172
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 179
+   at AccountService.Features.Account.Consumers.AntifraudConsumer.OnMessageAsync(Object sender, BasicDeliverEventArgs ea) in C:\Users\User\Source\Repos\AccountService\AccountService\Features\Account\Consumers\AntifraudConsumer.cs:line 184
+[2025-08-16 19:45:38.569 +00:00 WRN] Saved dead letter id="0198b46a-8828-70f7-9728-b185b19e251c" error=An error occurred while saving the entity changes. See the inner exception for details. {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":45}
+[2025-08-16 21:33:41.164 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 21:34:34.680 +00:00 INF] RabbitMQ initialized. Exchange: account.events {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":7}
+[2025-08-16 21:34:36.506 +00:00 INF] AntifraudConsumer started and bound to account.antifraud {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 21:34:36.506 +00:00 INF] AuditConsumer started and listening on account.audit {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 21:35:03.575 +00:00 INF] Published message to account.events / client.blocked Size=338 Correlation=0198b4ce-b6b1-745f-9c5d-9206da33c31a {"SourceContext":"AccountService.Infrastructure.Messaging.RabbitMqPublisher","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 21:35:03.590 +00:00 DBG] Received message: "0198b4ce-b6b1-745f-9c5d-9206da33c31a", Type: ClientBlocked, Correlation: 0198b4ce-b6b1-745f-9c5d-9206da33c31a {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":11}
+[2025-08-16 21:35:03.593 +00:00 INF] Event published: "0198b4ce-b6b1-745f-9c5d-9206da33c31a", Type: ClientBlocked, Correlation: "0198b4ce-b6b1-745f-9c5d-9206da33c31a", Latency: 7ms {"SourceContext":"AccountService.Features.Outbox.Dispatcher.OutboxDispatcher","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 21:35:03.628 +00:00 INF] Processed audit message "0198b4ce-b6b1-745f-9c5d-9206da33c31a" {"SourceContext":"AccountService.Features.Account.Consumers.AuditConsumer","EnvironmentName":"Development","ThreadId":14}
+[2025-08-16 21:35:03.635 +00:00 INF] ClientBlocked processed for client "1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656" {"SourceContext":"AccountService.Features.Account.Consumers.AntifraudConsumer","EnvironmentName":"Development","ThreadId":44}
