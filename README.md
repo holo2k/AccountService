@@ -21,12 +21,14 @@
 - Оптимистичная блокировка через concurrency-token (xmin)
 - Покрытие модульными и интеграционными тестами
 - Использование составного индекса
+- Отправка событий в RabbitMq
+- Получение событий, их обработка
 ---
 
 ## Технологии
 
 - ASP.NET Core 9
-- CQRS + MediatR
+- VSA + CQRS + MediatR
 - FluentValidation
 - AutoMapper
 - Swagger (OpenAPI)
@@ -34,6 +36,8 @@
 - Keycloak
 - HangFire
 - xUnit, Testcontainers, Moq
+- RabbitMq + Outbox pattern
+- Serilog
 
 ---
 
@@ -129,6 +133,32 @@ Bearer <ваш_access_token>
 [http://localhost/hangfire/recurring](http://localhost/hangfire/recurring)
 
 ---
+
+## Взаимодействие с RabbitMQ
+
+В сервисе используется **RabbitMQ** для обработки событий.
+
+### Основные компоненты
+
+* **Outbox pattern** — реализован для гарантированной доставки сообщений. Все события сначала записываются в таблицу `Outbox`, после чего публикуются в очередь RabbitMQ.
+* **Консьюмеры**:
+
+  * `AuditConsumer` — потребитель событий аудита.
+  * `AntifraudConsumer` — потребитель событий для разморозки/заморозки клиента.
+* **Карантин** — в случае ошибок при обработке сообщений они помещаются таблицу карантина.
+
+### Доступ
+
+* Логин/пароль по умолчанию:
+
+  * username: `guest`
+  * password: `guest`
+
+* Веб-интерфейс RabbitMQ доступен по адресу:
+  [http://localhost:15672/](http://localhost:15672/)
+
+---
+
 ## Примечание
 
 * Валюта указывается в формате ISO 4217 (В качестве заглушки есть 3 валюты - `RUB`, `USD`, `EUR`)
@@ -174,7 +204,7 @@ ORDER BY "Date";
 ### Получить счета пользователя
 
 ```bash
-curl -X GET "http://localhost:5000/accounts/1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656"
+curl -X GET "http://localhost:80/accounts/1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656"
 ```
 
 ---
@@ -182,7 +212,7 @@ curl -X GET "http://localhost:5000/accounts/1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656
 ### Создать новый счёт
 
 ```bash
-curl -X POST "http://localhost:5000/accounts" \
+curl -X POST "http://localhost:80/accounts" \
   -H "Content-Type: application/json" \
   -d '{
     "account": {
@@ -200,7 +230,7 @@ curl -X POST "http://localhost:5000/accounts" \
 ### Обновить счёт по ID
 
 ```bash
-curl -X PUT "http://localhost:5000/accounts/{accountId}" \
+curl -X PUT "http://localhost:80/accounts/{accountId}" \
   -H "Content-Type: application/json" \
   -d '{
     "account": {
@@ -219,7 +249,7 @@ curl -X PUT "http://localhost:5000/accounts/{accountId}" \
 ### Удалить счёт
 
 ```bash
-curl -X DELETE "http://localhost:5000/accounts/{accountId}"
+curl -X DELETE "http://localhost:80/accounts/{accountId}"
 ```
 
 ---
@@ -227,7 +257,7 @@ curl -X DELETE "http://localhost:5000/accounts/{accountId}"
 ### Проверить принадлежность счета пользователю
 
 ```bash
-curl -X GET "http://localhost:5000/accounts/{accountId}/owner/1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656/exists"
+curl -X GET "http://localhost:80/accounts/{accountId}/owner/1d22cb6b-4d05-4c80-aa9d-8a4e5eb37656/exists"
 ```
 
 ---
@@ -235,7 +265,7 @@ curl -X GET "http://localhost:5000/accounts/{accountId}/owner/1d22cb6b-4d05-4c80
 ### Получить выписку по счёту
 
 ```bash
-curl -X GET "http://localhost:5000/accounts/{accountId}/statement?from=2025-07-28&to=2025-07-29"
+curl -X GET "http://localhost:80/accounts/{accountId}/statement?from=2025-07-28&to=2025-07-29"
 ```
 
 ---
@@ -243,15 +273,15 @@ curl -X GET "http://localhost:5000/accounts/{accountId}/statement?from=2025-07-2
 ### Добавить транзакцию
 
 ```bash
-curl -X POST "http://localhost:5000/transactions" \
+curl -X POST "http://localhost:80/transactions" \
   -H "Content-Type: application/json" \
   -d '{
     "transaction": {
       "accountId": "{accountId_1}",
       "amount": 500.0,
       "currency": "RUB",
-      "type": 0,
-      "description": "Пополнение",
+      "type": Debit,
+      "description": "Information",
       "date": "2025-07-28T10:00:00Z"
     }
   }'
@@ -262,7 +292,7 @@ curl -X POST "http://localhost:5000/transactions" \
 ### Перевод между счетами
 
 ```bash
-curl -X POST "http://localhost:5000/transactions/transfer" \
+curl -X POST "http://localhost:80/transactions/transfer" \
   -H "Content-Type: application/json" \
   -d '{
     "payloadModel": {
@@ -275,49 +305,82 @@ curl -X POST "http://localhost:5000/transactions/transfer" \
   }'
 ```
 
+### Закрыть вклад и начислить проценты
+
+```bash
+curl -X POST "http://localhost:80/accounts/{accountId}/close-deposit"
+```
+
+---
+
+### Заблокировать клиента
+
+```bash
+curl -X POST "http://localhost:80/accounts/{clientId}/block"
+```
+
+---
+
+### Разблокировать клиента
+
+```bash
+curl -X POST "http://localhost:80/accounts/{clientId}/unblock"
+```
+
 ---
 
 ## Структура проекта
 
 ```
-AccountService
-├── AutoMapper
-│   └── MappingProfile.cs
-├── CurrencyService (заглушка сервиса валют)
-│   ├── Abstractions
-│   └── Implementations
-├── Features
-│   ├── Account
-│   │   ├── AccrueInterest
-│   │   ├── AddAccount
-│   │   ├── CheckAccountOwnership
-│   │   ├── CloseDeposit
-│   │   ├── DeleteAccount
-│   │   ├── GetAccount
-│   │   ├── GetAccountBalance
-│   │   ├── GetAccountsByOwnerId
-│   │   ├── GetAccountStatement
-│   │   └── UpdateAccount
-│   └── Transaction
-│       ├── AddTransaction
-│       └── TransferBetweenAccounts
-├── Filters
-├── Infrastructure
-│   ├── Helpers
-│   └── Repository
-│       ├── Abstractions
-│       └── Implementations
-├── Jobs
-├── PipelineBehaviors
-├── Startup
-│   └── Auth
-├── UserService (заглушка сервиса пользователей)
-│   ├── Abstractions
-│   ├── Implementations
-│   ├── AuthController.cs
-│   └── User.cs
-├── Program.cs
-└── AccountService.csproj
+├───AccountService
+│   ├───AutoMapper
+│   ├───CurrencyService (Заглушка сервиса валют)
+│   │   ├───Abstractions
+│   │   └───Implementations
+│   ├───Features
+│   │   ├───Account
+│   │   │   ├───AccrueInterest
+│   │   │   ├───AddAccount
+│   │   │   ├───CheckAccountOwnership
+│   │   │   ├───CloseDeposit
+│   │   │   ├───Consumers
+│   │   │   ├───DeleteAccount
+│   │   │   ├───FreezeAccount
+│   │   │   ├───GetAccount
+│   │   │   ├───GetAccountBalance
+│   │   │   ├───GetAccountsByOwnerId
+│   │   │   ├───GetAccountStatement
+│   │   │   └───UpdateAccount
+│   │   ├───Health
+│   │   │   └───HealthCheck
+│   │   ├───Outbox
+│   │   │   ├───Dispatcher
+│   │   │   └───Service
+│   │   └───Transaction
+│   │       ├───AddTransaction
+│   │       └───TransferBetweenAccounts
+│   ├───Filters
+│   ├───Infrastructure
+│   │   ├───Helpers
+│   │   ├───Messaging
+│   │   └───Repository
+│   │       ├───Abstractions
+│   │       └───Implementations
+│   ├───Jobs
+│   ├───Migrations
+│   ├───PipelineBehaviors
+│   ├───Properties
+│   ├───Startup
+│   │   ├───Auth
+│   │   └───Middleware
+│   ├───UserService (Заглушка сервиса пользователей)
+│   │   ├───Abstractions
+│   │   └───Implementations
+│   └───wwwroot
+└───AccountService.Tests
+    ├───Integration
+    │   └───Common
+    └───Unit
 
 ```
 ## Контакты
