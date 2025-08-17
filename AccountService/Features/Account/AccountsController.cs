@@ -172,7 +172,7 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    ///     Заблокировать клиента: запрещает все операции по его счетам.
+    ///     Заблокировать клиента: запрещает все дебетовые операции по его счетам.
     /// </summary>
     /// <param name="clientId">ID клиента</param>
     /// <returns>ID заблокированного клиента</returns>
@@ -194,7 +194,7 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    ///     Разблокировать клиента: разрешает операции по его счетам.
+    ///     Разблокировать клиента: разрешает дебетовые операции по его счетам.
     /// </summary>
     /// <param name="clientId">ID клиента</param>
     /// <returns>ID разблокированного клиента</returns>
