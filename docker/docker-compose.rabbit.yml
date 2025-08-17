@@ -1,0 +1,17 @@
+services:
+    rabbit-mq:
+        image: rabbitmq:3.13-management
+        container_name: rabbit-mq
+        ports:
+          - "5672:5672"   # AMQP
+          - "15672:15672" # UI
+        volumes:
+          - rabbitmq-data:/var/lib/rabbitmq
+          - ./rabbitmq_definitions.json:/etc/rabbitmq/definitions.json
+          - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+        environment:
+          - RABBITMQ_DEFAULT_USER=guest
+          - RABBITMQ_DEFAULT_PASS=guest
+          - RABBITMQ_MANAGEMENT_LOAD_DEFINITIONS=/etc/rabbitmq/definitions.json
+volumes:
+  rabbitmq-data:

@@ -1,9 +1,10 @@
 ﻿using AccountService.Features.Account;
+using AccountService.Features.Outbox.Service;
+using AccountService.Features.Transaction;
 using AccountService.Infrastructure.Helpers;
 using AccountService.Infrastructure.Repository;
 using AccountService.Infrastructure.Repository.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
@@ -16,6 +17,7 @@ public abstract class UnitTestBase
     protected readonly Mock<DatabaseFacade> DatabaseMock;
     protected readonly Mock<AppDbContext> DbContextMock;
     protected readonly Mock<IDbContextTransaction> DbContextTransactionMock;
+    protected readonly Mock<IOutboxService> OutboxServiceMock;
     protected readonly Mock<ISqlExecutor> SqlExecutorMock;
 
     protected UnitTestBase()
@@ -26,6 +28,7 @@ public abstract class UnitTestBase
         DbContextTransactionMock = new Mock<IDbContextTransaction>();
         DatabaseMock = new Mock<DatabaseFacade>(DbContextMock.Object);
         SqlExecutorMock = new Mock<ISqlExecutor>();
+        OutboxServiceMock = new Mock<IOutboxService>();
 
         DbContextMock.SetupGet(c => c.Database).Returns(DatabaseMock.Object);
 
@@ -37,15 +40,6 @@ public abstract class UnitTestBase
             .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
-        DbContextMock
-            .Setup(c => c.Entry(It.IsAny<Account>()))
-            .Returns((Account _) =>
-            {
-                var entryMock = new Mock<EntityEntry<Account>>();
-                entryMock.Setup(e => e.ReloadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-                return entryMock.Object;
-            });
-
         DbContextMock.Setup(c => c.Entry(It.IsAny<Account>()))
             .Returns((Account _) => null!);
 
@@ -56,5 +50,36 @@ public abstract class UnitTestBase
         AccountRepositoryMock
             .Setup(r => r.AccrueInterestAsync(It.IsAny<Guid>()))
             .ReturnsAsync(true);
+
+        AccountRepositoryMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new Account
+            {
+                Id = new Guid(),
+                Balance = 1000,
+                Currency = "RUB",
+                IsFrozen = false,
+                OpenDate = DateTime.Now,
+                Type = AccountType.Deposit,
+                PercentageRate = 50
+            });
+
+        OutboxServiceMock
+            .Setup(x => x.AddAccountOpenedEventAsync(It.IsAny<Account>(), It.IsAny<Guid?>(), It.IsAny<Guid?>()))
+            .Returns(Task.CompletedTask);
+
+        OutboxServiceMock
+            .Setup(x => x.AddTransactionEventAsync(It.IsAny<Transaction>(), It.IsAny<Guid?>(), It.IsAny<Guid?>()))
+            .Returns(Task.CompletedTask);
+
+        OutboxServiceMock
+            .Setup(x => x.AddTransferCompletedEventAsync(It.IsAny<TransactionPayload>(), It.IsAny<Guid?>(),
+                It.IsAny<Guid?>()))
+            .Returns(Task.CompletedTask);
+
+        OutboxServiceMock
+            .Setup(x => x.AddInterestAccruedEventAsync(It.IsAny<AccrueInterestModel>(), It.IsAny<Guid?>(),
+                It.IsAny<Guid?>()))
+            .Returns(Task.CompletedTask);
     }
 }

@@ -65,18 +65,28 @@ public static class MbResultExtensions
 {
     public static IActionResult FromResult<T>(this ControllerBase controller, MbResult<T> result)
     {
-        if (!result.IsSuccess)
-            return result.Error?.Code switch
-            {
-                "NotFound" => controller.NotFound(result), //404
-                "ValidationFailure" => controller.UnprocessableEntity(result), //422
-                "InsufficientFunds" => controller.Conflict(result), //409
-                "TransferError" => controller.Conflict(result), //409
-                "ConcurrencyConflict" => controller.Conflict(result), //409
-                "AccrueFailed" => controller.StatusCode(500, result), //500
-                _ => controller.BadRequest(result) //400
-            };
+        if (result.IsSuccess) return controller.Ok(result);
 
-        return controller.Ok(result);
+        var logger = controller.HttpContext.RequestServices.GetRequiredService<ILogger<ControllerBase>>();
+        logger.LogError("Error: {ErrorCode}, Message: {ErrorMessage}, Data: {@Result}",
+            result.Error?.Code,
+            result.Error?.Message,
+            result);
+
+        return result.Error?.Code switch
+        {
+            "NotFound" => controller.NotFound(result), //404
+            "ValidationFailure" => controller.UnprocessableEntity(result), //422
+            "InsufficientFunds" => controller.Conflict(result), //409
+            "TransferError" => controller.Conflict(result), //409
+            "ConcurrencyConflict" => controller.Conflict(result), //409
+            "AccrueFailed" => controller.StatusCode(500, result), //500
+            "AddAccountError" => controller.StatusCode(500, result), //500
+            "NotReady" => controller.StatusCode(503, result), //503
+            "AlreadyBlocked" => controller.Conflict(result), //409
+            "AlreadyUnblocked" => controller.Conflict(result), //409
+            "ClientBlocked" => controller.Conflict(result), //409
+            _ => controller.BadRequest(result) //400
+        };
     }
 }

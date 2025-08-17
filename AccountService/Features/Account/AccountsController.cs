@@ -2,6 +2,7 @@
 using AccountService.Features.Account.CheckAccountOwnership;
 using AccountService.Features.Account.CloseDeposit;
 using AccountService.Features.Account.DeleteAccount;
+using AccountService.Features.Account.FreezeAccount;
 using AccountService.Features.Account.GetAccountBalance;
 using AccountService.Features.Account.GetAccountsByOwnerId;
 using AccountService.Features.Account.GetAccountStatement;
@@ -169,6 +170,51 @@ public class AccountsController : ControllerBase
         var result = await _mediator.Send(new CloseDepositCommand(accountId));
         return this.FromResult(result);
     }
+
+    /// <summary>
+    ///     Заблокировать клиента: запрещает все дебетовые операции по его счетам.
+    /// </summary>
+    /// <param name="clientId">ID клиента</param>
+    /// <returns>ID заблокированного клиента</returns>
+    /// <response code="200">Операция отправлена в очередь</response>
+    /// <response code="400">Некорректный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
+    /// <response code="404">Клиент не найден</response>
+    /// <response code="409">Конфликт состояния (например, уже заблокирован)</response>
+    [HttpPost("{clientId}/block")]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> BlockClient(Guid clientId)
+    {
+        var result = await _mediator.Send(new FreezeAccountCommand(clientId, true));
+        return this.FromResult(result);
+    }
+
+    /// <summary>
+    ///     Разблокировать клиента: разрешает дебетовые операции по его счетам.
+    /// </summary>
+    /// <param name="clientId">ID клиента</param>
+    /// <returns>ID разблокированного клиента</returns>
+    /// <response code="200">Операция отправлена в очередь</response>
+    /// <response code="400">Некорректный запрос</response>
+    /// <response code="401">Не авторизованный запрос</response>
+    /// <response code="404">Клиент не найден</response>
+    /// <response code="409">Конфликт состояния (например, уже разблокирован)</response>
+    [HttpPost("{clientId}/unblock")]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MbResult<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MbResult<Guid>), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UnblockClient(Guid clientId)
+    {
+        var result = await _mediator.Send(new FreezeAccountCommand(clientId, false));
+        return this.FromResult(result);
+    }
+
 
     /// <summary>
     ///     Обновить счёт по ID.

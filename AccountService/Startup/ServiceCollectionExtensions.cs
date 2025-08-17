@@ -4,6 +4,8 @@ using AccountService.PipelineBehaviors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
 
 namespace AccountService.Startup;
 
@@ -75,7 +77,9 @@ public static class ServiceCollectionExtensions
                     Array.Empty<string>()
                 }
             });
+            c.EnableAnnotations();
         });
+
 
         return services;
     }
@@ -138,5 +142,40 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    public static void AddLogger(this IServiceCollection services)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .Enrich.FromLogContext()
+            .Enrich.WithEnvironmentName()
+            .Enrich.WithThreadId()
+            .WriteTo.Console(
+                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+            .WriteTo.File(
+                "Logs/log-.txt",
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7,
+                shared: true,
+                outputTemplate:
+                "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+            .WriteTo.Logger(lc => lc
+                .Filter.ByIncludingOnly(e =>
+                    e.Properties.ContainsKey("SourceContext") &&
+                    (
+                        e.Properties["SourceContext"].ToString().Contains("OutboxDispatcher") ||
+                        e.Properties["SourceContext"].ToString().Contains("AuditConsumer") ||
+                        // ReSharper disable once StringLiteralTypo (Слова нет в словаре)
+                        e.Properties["SourceContext"].ToString().Contains("AntifraudConsumer") ||
+                        e.Properties["SourceContext"].ToString().Contains("RabbitMqPublisher")
+                    )
+                )
+                .WriteTo.File("Logs/rabbit-mq-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7,
+                    shared: true,
+                    outputTemplate:
+                    "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}"))
+            .CreateLogger();
     }
 }

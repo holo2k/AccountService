@@ -38,6 +38,9 @@ namespace AccountService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsFrozen")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("OpenDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -63,6 +66,103 @@ namespace AccountService.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("OwnerId"), "hash");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("AccountService.Features.Outbox.InboxConsumed", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Handler")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MessageId", "Handler");
+
+                    b.ToTable("inbox_consumed", (string)null);
+                });
+
+            modelBuilder.Entity("AccountService.Features.Outbox.InboxDeadLetter", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Error")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Handler")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MessageId");
+
+                    b.ToTable("inbox_dead_letters", (string)null);
+                });
+
+            modelBuilder.Entity("AccountService.Features.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AggregateId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AggregateType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("CausationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("PublishedLatencyMs")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("outbox", (string)null);
                 });
 
             modelBuilder.Entity("AccountService.Features.Transaction.Transaction", b =>

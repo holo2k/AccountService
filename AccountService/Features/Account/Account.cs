@@ -26,4 +26,9 @@ public class Account
     [Column("xmin", TypeName = "xid")]
     // ReSharper disable once UnusedMember.Global (Используется для оптимистичной блокировки)
     public uint Version { get; set; }
+
+    /// <summary>
+    ///     Флаг заморозки счёта.
+    /// </summary>
+    public bool IsFrozen { get; set; }
 }

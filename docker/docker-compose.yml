@@ -1,5 +1,6 @@
 include:
     - docker-compose.keycloak.yml
+    - docker-compose.rabbit.yml 
 
 services:
   account-api:
@@ -9,6 +10,7 @@ services:
         dockerfile: Dockerfile
     depends_on:
       - keycloak
+      - rabbit-mq 
     ports:
       - "80:80"
     environment:
@@ -17,6 +19,7 @@ services:
       - Keycloak__Authority=http://keycloak:8080/realms/user-access
       - Keycloak__LocalAuthority=http://localhost:8080/realms/user-access
       - Keycloak__SwaggerAuthUrl=http://localhost:8080/realms/user-access/protocol/openid-connect/auth
+      - RabbitMQ__HostName=rabbitmq
   postgres-api:
     image: postgres:15
     container_name: postgres-api

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using AccountService.Features.Outbox.Service;
 using AccountService.Infrastructure.Repository;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
@@ -15,18 +16,20 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
     private readonly IAccountRepository _accountRepository;
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly IOutboxService _outboxService;
     private readonly ITransactionRepository _transactionRepository;
 
     public AddTransactionCommandHandler(
         ITransactionRepository transactionRepository,
         IAccountRepository accountRepository,
         IMapper mapper,
-        AppDbContext dbContext)
+        AppDbContext dbContext, IOutboxService outboxService)
     {
         _transactionRepository = transactionRepository;
         _accountRepository = accountRepository;
         _mapper = mapper;
         _dbContext = dbContext;
+        _outboxService = outboxService;
     }
 
     public async Task<MbResult<Guid>> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
@@ -55,9 +58,13 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
             var transactionEntity = CreateTransaction(dto);
             await _transactionRepository.AddAsync(transactionEntity);
 
+            var correlationId = Guid.CreateVersion7();
+            await _outboxService.AddTransactionEventAsync(transactionEntity, correlationId);
+
             if (dto.CounterPartyAccountId is not null)
             {
-                var counterPartyResult = await HandleCounterParty(dto, account);
+                var counterPartyResult = await HandleCounterParty(dto, account, correlationId);
+
                 if (!counterPartyResult.IsSuccess)
                     return await FailAndRollback(transaction, counterPartyResult.Error!, cancellationToken);
             }
@@ -89,6 +96,13 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
                 Message = $"Счёт с ID {dto.AccountId} не найден"
             });
 
+        if (account.IsFrozen && dto.Type == TransactionType.Debit)
+            return MbResult<Account.Account>.Fail(new MbError
+            {
+                Code = "ClientBlocked",
+                Message = $"Счёт с ID {dto.AccountId} заморожен и не может осуществлять дебетовые операции"
+            });
+
         return MbResult<Account.Account>.Success(account);
     }
 
@@ -116,7 +130,8 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
         return transaction;
     }
 
-    private async Task<MbResult<Guid>> HandleCounterParty(TransactionDto dto, Account.Account account)
+    private async Task<MbResult<Guid>> HandleCounterParty(TransactionDto dto, Account.Account account,
+        Guid correlationId)
     {
         var counterParty = await _accountRepository.GetByIdAsync(dto.CounterPartyAccountId!.Value);
         if (counterParty is null)
@@ -156,6 +171,8 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
         };
 
         await _transactionRepository.AddAsync(mirroredTransaction);
+        await _outboxService.AddTransactionEventAsync(mirroredTransaction, correlationId);
+
         return MbResult<Guid>.Success(mirroredTransaction.Id);
     }
 

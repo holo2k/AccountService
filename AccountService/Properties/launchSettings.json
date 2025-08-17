@@ -10,7 +10,7 @@
     },
     "Docker": {
       "commandName": "Docker",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "http://localhost:80",
       "httpPort": 80,
       "useSSL": false,

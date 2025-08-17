@@ -38,12 +38,6 @@ public class AccountRepository : IAccountRepository
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task AddAsync(Account account)
-    {
-        await _dbContext.Accounts.AddAsync(account);
-        await _dbContext.SaveChangesAsync();
-    }
-
     public async Task<MbResult<Guid>> UpdateAsync(Account account)
     {
         try

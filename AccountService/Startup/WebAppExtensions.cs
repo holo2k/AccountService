@@ -34,6 +34,7 @@ public static class WebAppExtensions
 
     public static void AddSwagger(this WebApplication app)
     {
+        app.UseStaticFiles();
         app.Use(async (context, next) =>
         {
             if (context.Request.Path == "/")
@@ -56,6 +57,9 @@ public static class WebAppExtensions
             c.OAuthClientId("account-api");
 
             c.OAuthScopes("openid", "profile", "email", "roles");
+
+            c.InjectJavascript("/swagger-events.js");
+            c.InjectStylesheet("/swagger-custom.css");
         });
     }
 

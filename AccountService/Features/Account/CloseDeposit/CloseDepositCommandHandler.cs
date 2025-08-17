@@ -1,4 +1,5 @@
-﻿using AccountService.Infrastructure.Helpers;
+﻿using AccountService.Features.Outbox.Service;
+using AccountService.Infrastructure.Helpers;
 using AccountService.Infrastructure.Repository;
 using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
@@ -11,14 +12,16 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
 {
     private readonly IAccountRepository _accountRepository;
     private readonly AppDbContext _dbContext;
+    private readonly IOutboxService _outboxService;
     private readonly ISqlExecutor _sqlExecutor;
 
     public CloseDepositCommandHandler(IAccountRepository accountRepository, AppDbContext dbContext,
-        ISqlExecutor sqlExecutor)
+        ISqlExecutor sqlExecutor, IOutboxService outboxService)
     {
         _accountRepository = accountRepository;
         _dbContext = dbContext;
         _sqlExecutor = sqlExecutor;
+        _outboxService = outboxService;
     }
 
     public async Task<MbResult<ClosedDepositDto>> Handle(CloseDepositCommand request,
@@ -51,6 +54,8 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
 
         try
         {
+            var balanceBefore = account.Balance;
+
             var rowsAffected = await _sqlExecutor.ExecuteScalarIntAsync(
                 "SELECT accrue_interest(@p0)", request.AccountId);
 
@@ -72,6 +77,19 @@ public class CloseDepositCommandHandler : IRequestHandler<CloseDepositCommand, M
             if (!updateResult.IsSuccess)
                 throw new Exception(updateResult.Error!.Message);
 
+            var balanceAfter = account.Balance;
+
+            var amount = balanceAfter - balanceBefore;
+
+            var interestModel = new AccrueInterestModel
+            {
+                AccountId = request.AccountId,
+                Amount = amount,
+                PeriodFrom = DateTime.UtcNow.Date.AddDays(-1),
+                PeriodTo = DateTime.UtcNow.Date
+            };
+
+            await _outboxService.AddInterestAccruedEventAsync(interestModel);
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
