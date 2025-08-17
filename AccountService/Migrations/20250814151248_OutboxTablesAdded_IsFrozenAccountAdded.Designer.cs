@@ -3,6 +3,7 @@ using System;
 using AccountService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccountService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250814151248_OutboxTablesAdded_IsFrozenAccountAdded")]
+    partial class OutboxTablesAdded_IsFrozenAccountAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,15 +74,17 @@ namespace AccountService.Migrations
             modelBuilder.Entity("AccountService.Features.Outbox.InboxConsumed", b =>
                 {
                     b.Property<Guid>("MessageId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Handler")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("MessageId", "Handler");
+                    b.HasKey("MessageId");
 
                     b.ToTable("inbox_consumed", (string)null);
                 });
