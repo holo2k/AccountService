@@ -10,7 +10,8 @@ public class AccrueInterestCommandHandlerTests : UnitTestBase
     {
         var accountId = Guid.NewGuid();
 
-        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object);
+        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
+            OutboxServiceMock.Object);
 
         var result = await handler.Handle(new AccrueInterestCommand(accountId), CancellationToken.None);
 
@@ -30,7 +31,8 @@ public class AccrueInterestCommandHandlerTests : UnitTestBase
             .Setup(r => r.AccrueInterestAsync(accountId))
             .ReturnsAsync(false);
 
-        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object);
+        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
+            OutboxServiceMock.Object);
 
         var result = await handler.Handle(new AccrueInterestCommand(accountId), CancellationToken.None);
 
@@ -49,7 +51,8 @@ public class AccrueInterestCommandHandlerTests : UnitTestBase
             .Setup(r => r.AccrueInterestAsync(accountId))
             .ThrowsAsync(new InvalidOperationException("Some DB error"));
 
-        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object);
+        var handler = new AccrueInterestCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
+            OutboxServiceMock.Object);
 
         var result = await handler.Handle(new AccrueInterestCommand(accountId), CancellationToken.None);
 

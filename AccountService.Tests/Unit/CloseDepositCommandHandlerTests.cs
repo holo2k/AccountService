@@ -22,7 +22,7 @@ public class CloseDepositCommandHandlerTests : UnitTestBase
             .ReturnsAsync((Account)null!);
 
         var handler = new CloseDepositCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
-            SqlExecutorMock.Object);
+            SqlExecutorMock.Object, OutboxServiceMock.Object);
 
         var result = await handler.Handle(new CloseDepositCommand(Guid.NewGuid()), default);
 
@@ -38,7 +38,7 @@ public class CloseDepositCommandHandlerTests : UnitTestBase
             .ReturnsAsync(account);
 
         var handler = new CloseDepositCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
-            SqlExecutorMock.Object);
+            SqlExecutorMock.Object, OutboxServiceMock.Object);
 
         var result = await handler.Handle(new CloseDepositCommand(account.Id), default);
 
@@ -61,7 +61,7 @@ public class CloseDepositCommandHandlerTests : UnitTestBase
             .ReturnsAsync(1);
 
         var handler = new CloseDepositCommandHandler(AccountRepositoryMock.Object, DbContextMock.Object,
-            SqlExecutorMock.Object);
+            SqlExecutorMock.Object, OutboxServiceMock.Object);
 
         var result = await handler.Handle(new CloseDepositCommand(account.Id), default);
 
