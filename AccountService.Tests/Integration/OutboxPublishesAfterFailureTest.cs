@@ -2,17 +2,19 @@
 using AccountService.Features.Outbox;
 using AccountService.Infrastructure.Messaging;
 using AccountService.Infrastructure.Repository;
+using AccountService.Tests.Integration.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AccountService.Tests.Integration;
 
-public class OutboxTests : IClassFixture<IntegrationTestFixture>
+[Collection("SequentialIntegrationTests")]
+public class OutboxPublishesAfterFailureTest : IClassFixture<IntegrationTestFixture>
 {
     private readonly HttpClient _client;
     private readonly IntegrationTestFixture _fixture;
 
-    public OutboxTests(IntegrationTestFixture fixture)
+    public OutboxPublishesAfterFailureTest(IntegrationTestFixture fixture)
     {
         _fixture = fixture;
         _client = fixture.Client;

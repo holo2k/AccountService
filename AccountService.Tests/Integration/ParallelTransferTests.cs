@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using AccountService.PipelineBehaviors;
+using AccountService.Tests.Integration.Common;
 using Xunit.Abstractions;
 
 namespace AccountService.Tests.Integration;
 
+[Collection("SequentialIntegrationTests")]
 public class ParallelTransferTests : IClassFixture<IntegrationTestFixture>
 {
     private readonly HttpClient _client;

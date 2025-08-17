@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.Data.Common;
+using System.Diagnostics;
 using AccountService.Infrastructure.Messaging;
 using AccountService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Npgsql;
 
 namespace AccountService.Features.Outbox.Dispatcher;
 
@@ -142,6 +144,11 @@ public class OutboxDispatcher : BackgroundService
                 _logger.LogInformation("OutboxDispatcher shutting down (cancellation requested).");
                 break;
             }
+            catch (NpgsqlException dbEx) when (IsTransientDatabaseError(dbEx))
+            {
+                _logger.LogWarning(dbEx, "Transient database error in OutboxDispatcher. Retrying...");
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "OutboxDispatcher runloop failed");
@@ -220,5 +227,13 @@ public class OutboxDispatcher : BackgroundService
         var jitterDelay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * (1 + jitterPercent));
 
         await Task.Delay(jitterDelay, ct);
+    }
+
+    private static bool IsTransientDatabaseError(DbException ex)
+    {
+        // 57P01: admin shutdown
+        // 57P03: crash shutdown
+        // 53300: too many connections
+        return ex.SqlState is "57P01" or "57P03" or "53300";
     }
 }

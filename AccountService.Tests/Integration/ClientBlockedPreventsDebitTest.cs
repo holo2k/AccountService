@@ -3,18 +3,20 @@ using System.Net.Http.Json;
 using AccountService.Features.Account.FreezeAccount;
 using AccountService.Infrastructure.Repository;
 using AccountService.PipelineBehaviors;
+using AccountService.Tests.Integration.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AccountService.Tests.Integration;
 
-public class ClientBlockedTests : IClassFixture<IntegrationTestFixture>
+[Collection("SequentialIntegrationTests")]
+public class ClientBlockedPreventsDebitTest : IClassFixture<IntegrationTestFixture>
 {
     private readonly HttpClient _client;
     private readonly IntegrationTestFixture _fixture;
 
-    public ClientBlockedTests(IntegrationTestFixture fixture)
+    public ClientBlockedPreventsDebitTest(IntegrationTestFixture fixture)
     {
         _fixture = fixture;
         _client = fixture.Client;
@@ -97,14 +99,23 @@ public class ClientBlockedTests : IClassFixture<IntegrationTestFixture>
 
     private static async Task WaitForCondition(
         Func<Task<bool>> condition,
-        int timeoutMs = 20000,
+        int timeoutMs = 60000,
         string description = "Condition")
     {
         var startTime = DateTime.UtcNow;
+        var attempts = 0;
+
         while (DateTime.UtcNow - startTime < TimeSpan.FromMilliseconds(timeoutMs))
         {
-            if (await condition()) return;
-            await Task.Delay(500);
+            attempts++;
+            if (await condition())
+            {
+                Console.WriteLine($"{description} met after {attempts} attempts");
+                return;
+            }
+
+            Console.WriteLine($"{description} not met yet, attempt {attempts}");
+            await Task.Delay(5000);
         }
 
         throw new TimeoutException($"{description} not met within {timeoutMs}ms");

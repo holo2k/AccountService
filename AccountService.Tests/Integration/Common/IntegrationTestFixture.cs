@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
-namespace AccountService.Tests.Integration;
+namespace AccountService.Tests.Integration.Common;
 
 public class IntegrationTestFixture : IAsyncLifetime
 {
