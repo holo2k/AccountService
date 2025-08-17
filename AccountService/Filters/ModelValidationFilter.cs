@@ -6,6 +6,13 @@ namespace AccountService.Filters;
 
 public class ModelValidationFilter : IActionFilter
 {
+    private readonly ILogger<ModelValidationFilter> _logger;
+
+    public ModelValidationFilter(ILogger<ModelValidationFilter> logger)
+    {
+        _logger = logger;
+    }
+
     public void OnActionExecuting(ActionExecutingContext context)
     {
         if (context.ModelState.IsValid) return;
@@ -16,12 +23,19 @@ public class ModelValidationFilter : IActionFilter
                 kv => kv.Key,
                 kv => kv.Value!.Errors.Select(e => e.ErrorMessage).ToArray());
 
-        var result = MbResult<object>.Fail(new MbError
+        var mbError = new MbError
         {
             Code = "ValidationError",
             Message = "Ошибка встроенной валидации",
             ValidationErrors = errors
-        });
+        };
+
+        var result = MbResult<object>.Fail(mbError);
+
+        _logger.LogError("Model validation failed: {ErrorCode}, Message: {ErrorMessage}, Errors: {@ValidationErrors}",
+            mbError.Code,
+            mbError.Message,
+            mbError.ValidationErrors);
 
         context.Result = new JsonResult(result)
         {
