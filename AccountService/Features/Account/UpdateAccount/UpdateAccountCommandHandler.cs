@@ -28,8 +28,6 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
         existingAccount.Currency = request.Account.Currency;
         existingAccount.PercentageRate = request.Account.PercentageRate;
 
-        _mapper.Map(request.Account, existingAccount);
-
         var result = await _repository.UpdateAsync(existingAccount);
 
         return !result.IsSuccess ? MbResult<Guid>.Fail(result.Error!) : MbResult<Guid>.Success(existingAccount.Id);
