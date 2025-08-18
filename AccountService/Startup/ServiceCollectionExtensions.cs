@@ -84,7 +84,8 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration,
+        IHostEnvironment env)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -92,14 +93,14 @@ public static class ServiceCollectionExtensions
                 options.Authority = configuration["Keycloak:Authority"];
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = false,
+                    ValidateAudience = !env.IsDevelopment(),
                     ValidIssuers = new[]
                     {
                         configuration["Keycloak:Authority"],
                         configuration["Keycloak:LocalAuthority"]
                     }
                 };
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = !env.IsDevelopment();
 
                 options.Events = new JwtBearerEvents
                 {

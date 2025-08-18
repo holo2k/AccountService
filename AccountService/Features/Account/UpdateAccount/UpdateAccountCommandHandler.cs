@@ -24,6 +24,10 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
         if (existingAccount == null)
             return MbResult<Guid>.Fail(new MbError { Code = "NotFound", Message = "Account not found" });
 
+        existingAccount.Type = request.Account.Type;
+        existingAccount.Currency = request.Account.Currency;
+        existingAccount.PercentageRate = request.Account.PercentageRate;
+
         _mapper.Map(request.Account, existingAccount);
 
         var result = await _repository.UpdateAsync(existingAccount);

@@ -86,6 +86,7 @@ public static class MbResultExtensions
             "AlreadyBlocked" => controller.Conflict(result), //409
             "AlreadyUnblocked" => controller.Conflict(result), //409
             "ClientBlocked" => controller.Conflict(result), //409
+            "CurrencyMismatch" => controller.Conflict(result), //409
             _ => controller.BadRequest(result) //400
         };
     }

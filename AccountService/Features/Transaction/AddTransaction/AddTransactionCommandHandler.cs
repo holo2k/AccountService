@@ -46,6 +46,12 @@ public class AddTransactionCommandHandler : IRequestHandler<AddTransactionComman
                 return await FailAndRollback(transaction, accountResult.Error!, cancellationToken);
 
             var account = accountResult.Result!;
+            if (account.Currency != dto.Currency)
+                return MbResult<Guid>.Fail(new MbError
+                {
+                    Code = "CurrencyMismatch",
+                    Message = $"Валюта счёта {account.Currency} не совпадает с валютой транзакции {dto.Currency}"
+                });
 
             var balanceResult = UpdateAccountBalance(account, dto);
             if (!balanceResult.IsSuccess)

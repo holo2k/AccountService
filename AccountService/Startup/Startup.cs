@@ -27,7 +27,8 @@ public static class Startup
 {
     private static readonly bool IsTest = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Test";
 
-    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration,
+        IHostEnvironment environment)
     {
         services.AddHttpClient();
 
@@ -48,7 +49,7 @@ public static class Startup
             );
             services.AddHangfireServer();
 
-            services.AddAuthentication(configuration);
+            services.AddAuthentication(configuration, environment);
             services.AddSwagger(configuration);
             services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
             services.AddHostedService<OutboxDispatcher>();
@@ -89,9 +90,9 @@ public static class Startup
 
     public static async Task Configure(WebApplication app)
     {
-        app.UseMiddleware<RequestLoggingMiddleware>();
+        if (app.Environment.IsDevelopment()) app.UseCors("AllowAll");
 
-        app.UseCors("AllowAll");
+        app.UseMiddleware<RequestLoggingMiddleware>();
 
         app.AddExceptionHandler();
 

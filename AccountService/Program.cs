@@ -8,7 +8,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        Startup.Startup.ConfigureServices(builder.Services, builder.Configuration);
+        Startup.Startup.ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
         builder.Host.UseSerilog();
 
