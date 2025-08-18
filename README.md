@@ -160,8 +160,15 @@ Bearer <ваш_access_token>
 ---
 
 ## Примечание
+### Development настройки
 
+При `ASPNETCORE_ENVIRONMENT=Development` включаются упрощения:
+- CORS = AllowAll
+- Jwt.ValidateAudience = false
+- Jwt.RequireHttps = false
+  
 * Валюта указывается в формате ISO 4217 (В качестве заглушки есть 3 валюты - `RUB`, `USD`, `EUR`)
+
 * Поле `type` для счёта:
 
   * `0` — `Checking`
