@@ -1,6 +1,5 @@
 ﻿using AccountService.Infrastructure.Repository.Abstractions;
 using AccountService.PipelineBehaviors;
-using AutoMapper;
 using MediatR;
 
 namespace AccountService.Features.Account.UpdateAccount;
@@ -8,13 +7,11 @@ namespace AccountService.Features.Account.UpdateAccount;
 // ReSharper disable once UnusedMember.Global (Используется в MediatR)
 public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand, MbResult<Guid>>
 {
-    private readonly IMapper _mapper;
     private readonly IAccountRepository _repository;
 
-    public UpdateAccountCommandHandler(IAccountRepository repository, IMapper mapper)
+    public UpdateAccountCommandHandler(IAccountRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async Task<MbResult<Guid>> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
@@ -27,8 +24,6 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
         existingAccount.Type = request.Account.Type;
         existingAccount.Currency = request.Account.Currency;
         existingAccount.PercentageRate = request.Account.PercentageRate;
-
-        _mapper.Map(request.Account, existingAccount);
 
         var result = await _repository.UpdateAsync(existingAccount);
 
